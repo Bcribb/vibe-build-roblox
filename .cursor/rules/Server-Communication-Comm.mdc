@@ -1,0 +1,42 @@
+---
+description: Enforce Comm for server-client communication
+alwaysApply: true
+---
+
+# Server Communication Uses Comm
+
+Use `sleitnick/comm` as the default and required approach for new server-client communication.
+
+For new networking code, do not directly create or manage `RemoteEvent`, `RemoteFunction`, `UnreliableRemoteEvent`, or ad-hoc remote folders.
+
+Allowed exceptions:
+- Existing legacy networking that is not currently being refactored.
+- Roblox APIs that are not server-client remotes (for example `MessagingService`).
+- Explicit user instruction to use a non-Comm pattern.
+
+## Prefer
+
+```luau
+local ReplicatedStorage: ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local Packages: Folder = ReplicatedStorage:WaitForChild("Packages") :: Folder
+local Comm: any = require(Packages:WaitForChild("Comm"))
+
+local remotesFolder: Folder = ReplicatedStorage:WaitForChild("Remotes") :: Folder
+local serverComm: any = Comm.ServerComm.new(remotesFolder, "ToolProvider")
+local grantToolSignal: any = serverComm:CreateSignal("GrantTool")
+```
+
+## Avoid
+
+```luau
+local ReplicatedStorage: ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local remotesFolder: Folder = Instance.new("Folder")
+remotesFolder.Name = "Remotes"
+remotesFolder.Parent = ReplicatedStorage
+
+local grantToolRemote: RemoteEvent = Instance.new("RemoteEvent")
+grantToolRemote.Name = "GrantTool"
+grantToolRemote.Parent = remotesFolder
+```

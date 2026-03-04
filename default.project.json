@@ -6,6 +6,9 @@
       "Client": {
         "$path": "src/client"
       },
+      "Packages": {
+        "$path": "Packages"
+      },
       "Shared": {
         "$path": "src/shared"
       },
