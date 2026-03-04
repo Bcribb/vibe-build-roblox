@@ -1,0 +1,6 @@
+---
+description: Keep Luau LSP diagnostics clean
+alwaysApply: true
+---
+
+Make sure Luau files have no Luau LSP errors.

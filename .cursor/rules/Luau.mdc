@@ -1,0 +1,17 @@
+---
+description: Luau strict typing standards
+alwaysApply: true
+---
+
+Add `--!strict` to the top of all Luau files.
+Adhere to strict typing in all Luau files.
+Add explicit type annotations to all variable declarations, even when the type is obvious from context.
+Example: `local count: number = 1`
+Exception: when requiring a module used elsewhere that does not expose an explicit type, you may annotate that required module as `any`.
+Prefer annotating top-level module tables created in the same file and returned by that module script as `any` (for example `local BootstrapLoader: any = {}`).
+Follow the Luau styling guide referenced in project docs.
+Do not define reusable config or contract types via `typeof(SomeConstant)` when a canonical exported type already exists.
+Prefer importing shared exported types from `src/shared/Types/*` for cross-file contracts.
+Prefer lower camel case for user-defined function and method names (for example `setCFrame`, `createForModel`).
+Keep constructor names as `new` when using a class-like module pattern.
+Use PascalCase for Roblox engine API members and Roblox types only.

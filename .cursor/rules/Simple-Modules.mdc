@@ -1,0 +1,82 @@
+---
+description: Keep modules simple with minimal defensive checks and early exits
+alwaysApply: true
+---
+
+# Simple Modules
+
+Prefer straightforward module code that assumes valid internal contracts.
+
+Avoid adding defensive checks for types, nil values, or instance existence when the calling path already guarantees them.
+
+When code handles external or uncertain input boundaries, validation can still be useful.
+
+## Prefer
+
+```luau
+local function applyJumpForce(character: Model, jumpForce: number)
+	if jumpForce <= 0 then
+		return
+	end
+
+	local rootPart = character.PrimaryPart
+	rootPart:ApplyImpulse(Vector3.new(0, jumpForce, 0))
+end
+```
+
+## Avoid
+
+```luau
+local function applyJumpForce(character: any, jumpForce: any)
+	if typeof(character) ~= "Instance" then
+		return
+	end
+
+	if not character then
+		return
+	end
+
+	if typeof(jumpForce) ~= "number" then
+		return
+	end
+
+	local rootPart = character and character.PrimaryPart
+	if not rootPart then
+		return
+	end
+
+	if rootPart:IsA("BasePart") then
+		rootPart:ApplyImpulse(Vector3.new(0, jumpForce, 0))
+	end
+end
+```
+
+Use early exits (`return` / `continue`) to reduce nesting and keep the happy path easy to scan.
+
+## Prefer
+
+```luau
+for _, simulation in simulations do
+	if not simulation.Enabled then
+		continue
+	end
+
+	if simulation.State == "Stopped" then
+		continue
+	end
+
+	simulation:Step(deltaTime)
+end
+```
+
+## Avoid
+
+```luau
+for _, simulation in simulations do
+	if simulation.Enabled then
+		if simulation.State ~= "Stopped" then
+			simulation:Step(deltaTime)
+		end
+	end
+end
+```

@@ -1,0 +1,25 @@
+---
+description: Organize requires and dependency grouping
+alwaysApply: true
+---
+
+Split top-of-file dependency declarations into groups in this order:
+
+1) Roblox services
+2) Types
+3) Constants
+4) Helpers
+5) My services / controllers / shared systems
+6) Classes
+
+Whitespace and placement rules:
+- Use exactly one blank line between different groups.
+- Do not use blank lines inside the same group.
+- Keep each group contiguous.
+- Keep dependency groups before non-dependency declarations (for example, type declarations and runtime locals).
+
+Pathing rules:
+- You can require scripts that are children using relative `:WaitForChild(...)`.
+- Do not navigate upwards for require paths (`script.Parent`, `script.parent`, `Parent.Parent`, etc.).
+
+If anything does not clearly fit one of these categories, ask the user before deciding.

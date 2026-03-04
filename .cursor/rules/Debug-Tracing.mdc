@@ -1,0 +1,26 @@
+---
+description: Prefer Roblox print/warn for debug traces, never HttpService
+alwaysApply: true
+---
+
+# Debug Tracing
+
+When adding temporary or runtime debug traces, use Roblox output primitives (`print` or `warn`).
+
+Do not use `HttpService` for traces, telemetry pings, or log forwarding.
+
+## Preferred
+
+```luau
+print("[SlamSimulation] Received input", inputData)
+warn("[SlamSimulation] Unexpected state", stateName)
+```
+
+## Avoid
+
+```luau
+local HttpService = game:GetService("HttpService")
+HttpService:PostAsync(traceEndpoint, HttpService:JSONEncode({ message = "state changed" }))
+```
+
+If a trace is only for local debugging, keep it in Roblox output and remove it when no longer needed.

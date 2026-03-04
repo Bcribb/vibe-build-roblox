@@ -1,0 +1,29 @@
+---
+description: Improve readability with blank lines before control flow
+alwaysApply: true
+---
+
+# Readability Spacing
+
+Prefer a single blank line between variable declarations/assignments and the next control-flow statement to improve scanability.
+
+Use this spacing for statements like `if`, `for`, `while`, and `repeat`.
+
+Keep related declarations contiguous, then separate them from control flow with exactly one blank line.
+
+Allow exceptions when a compact one-liner is clearly more readable.
+
+```luau
+-- Bad
+local speed = characterSpeed
+if speed > 20 then
+	print("Fast")
+end
+
+-- Good
+local speed = characterSpeed
+
+if speed > 20 then
+	print("Fast")
+end
+```

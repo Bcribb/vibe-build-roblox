@@ -1,0 +1,91 @@
+{
+  "name": "VibeBuild",
+  "tree": {
+    "$className": "DataModel",
+    "ReplicatedStorage": {
+      "Client": {
+        "$path": "src/client"
+      },
+      "Shared": {
+        "$path": "src/shared"
+      }
+    },
+    "ServerScriptService": {
+      "Server": {
+        "$path": "src/bootstrap/server"
+      }
+    },
+    "ServerStorage": {
+      "Server": {
+        "$path": "src/server"
+      }
+    },
+    "StarterPlayer": {
+      "StarterPlayerScripts": {
+        "Client": {
+          "$path": "src/bootstrap/client"
+        }
+      }
+    },
+    "Workspace": {
+      "Baseplate": {
+        "$className": "Part",
+        "$properties": {
+          "Anchored": true,
+          "Color": [
+            0.38823,
+            0.37254,
+            0.38823
+          ],
+          "Locked": true,
+          "Position": [
+            0,
+            -10,
+            0
+          ],
+          "Size": [
+            512,
+            20,
+            512
+          ]
+        }
+      },
+      "CenterBox": {
+        "$className": "Part",
+        "$properties": {
+          "Anchored": true,
+          "CanCollide": false,
+          "Position": [
+            0,
+            4,
+            0
+          ],
+          "Size": [
+            8,
+            8,
+            8
+          ],
+          "Transparency": 0.5
+        }
+      }
+    },
+    "Lighting": {
+      "$properties": {
+        "Ambient": [
+          0,
+          0,
+          0
+        ],
+        "Brightness": 2,
+        "GlobalShadows": true,
+        "Outlines": false,
+        "Technology": "Voxel"
+      }
+    },
+    "SoundService": {
+      "$properties": {
+        "RespectFilteringEnabled": true
+      }
+    }
+  }
+}
