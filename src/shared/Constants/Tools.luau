@@ -10,9 +10,13 @@ export type ToolConstants = {
 	TOOL: Instance?,
 }
 
+export type CreateToolConstants = ToolConstants & {
+	BLOCK_ATTRIBUTE_NAME: string,
+}
+
 export type ToolsConstants = {
 	DELETE: ToolConstants,
-	CREATE: ToolConstants,
+	CREATE: CreateToolConstants,
 }
 
 local TOOLS: ToolsConstants = {
@@ -23,6 +27,7 @@ local TOOLS: ToolsConstants = {
 	CREATE = {
 		NAME = "Create",
 		TOOL = toolsFolder:WaitForChild("Create"),
+		BLOCK_ATTRIBUTE_NAME = "BlockType",
 	},
 }
 

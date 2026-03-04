@@ -14,7 +14,7 @@
       },
       "Assets": {
         "$className": "Folder",
-        "ToolModels": {
+        "Blocks": {
           "$className": "Folder",
           "Cube": {
             "$className": "Model",

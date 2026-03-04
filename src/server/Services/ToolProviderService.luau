@@ -9,6 +9,7 @@ local Workspace: Workspace = game:GetService("Workspace")
 local sharedFolder: Instance = ReplicatedStorage:WaitForChild("Shared")
 local constantsFolder: Instance = sharedFolder:WaitForChild("Constants")
 
+local BLOCKS: any = require(constantsFolder:WaitForChild("Blocks"))
 local TOOL_PROVIDER: any = require(constantsFolder:WaitForChild("ToolProvider"))
 local TOOLS: any = require(constantsFolder:WaitForChild("Tools"))
 
@@ -19,6 +20,7 @@ local heartbeatConnection: RBXScriptConnection? = nil
 local elapsedSeconds: number = 0
 local pollIntervalSeconds: number = 0
 local EMPTY_TOOL_NAME: string = "EmptyTool"
+local randomGenerator: Random = Random.new()
 
 local function hasToolInContainer(container: Instance): boolean
 	for _, child: Instance in container:GetChildren() do
@@ -46,6 +48,12 @@ local function playerHasAnyTool(player: Player): boolean
 	return false
 end
 
+local function getRandomBlockKey(): string
+	local randomIndex: number = randomGenerator:NextInteger(1, #BLOCKS)
+
+	return randomIndex
+end
+
 local function grantEmptyTool(player: Player): ()
 	local backpack: Instance? = player:FindFirstChildOfClass("Backpack")
 
@@ -53,10 +61,14 @@ local function grantEmptyTool(player: Player): ()
 		return
 	end
 
-	local tool: TOOLS.ToolConstants = TOOLS.CREATE
+	local tool: TOOLS.CreateToolConstants = TOOLS.CREATE
 
 	local toolInstance: Tool = tool.TOOL:Clone()
-	toolInstance.Name = tool.NAME
+	local selectedBlockKey: number = getRandomBlockKey()
+	local selectedBlock: BLOCKS.BlockDefinition = BLOCKS[selectedBlockKey]
+
+	toolInstance.Name = selectedBlock.NAME
+	toolInstance:SetAttribute(tool.BLOCK_ATTRIBUTE_NAME, selectedBlockKey)
 	toolInstance.Parent = backpack
 end
 
