@@ -8,6 +8,26 @@
       },
       "Shared": {
         "$path": "src/shared"
+      },
+      "Assets": {
+        "$className": "Folder",
+        "Tools": {
+          "$className": "Folder",
+          "Cube": {
+            "$className": "Model",
+            "CubePart": {
+              "$className": "Part",
+              "$properties": {
+                "Anchored": true,
+                "Size": [
+                  4,
+                  4,
+                  4
+                ]
+              }
+            }
+          }
+        }
       }
     },
     "ServerScriptService": {
