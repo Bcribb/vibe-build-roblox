@@ -1,6 +1,12 @@
 --!strict
 
 local Players: Players = game:GetService("Players")
+local ReplicatedStorage: ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local sharedFolder: Instance = ReplicatedStorage:WaitForChild("Shared")
+local constantsFolder: Instance = sharedFolder:WaitForChild("Constants")
+
+local TOOLS: any = require(constantsFolder:WaitForChild("Tools"))
 
 local ToolController: any = {}
 
@@ -8,6 +14,13 @@ local equippedConnections: { [Tool]: RBXScriptConnection } = {}
 local observedContainers: { [Instance]: boolean } = {}
 
 local function onToolEquipped(tool: Tool): ()
+	local toolType: string? = tool:GetAttribute(TOOLS.CREATE.TOOL_TYPE_ATTRIBUTE_NAME) :: string?
+
+	if toolType == TOOLS.CREATE.TYPE then
+		print("[ToolController] Equipped create tool", tool.Name, "linked block", tool.Name)
+		return
+	end
+
 	print("[ToolController] Equipped", tool.Name)
 end
 

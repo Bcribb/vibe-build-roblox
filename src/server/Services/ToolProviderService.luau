@@ -48,7 +48,7 @@ local function playerHasAnyTool(player: Player): boolean
 	return false
 end
 
-local function getRandomBlockKey(): string
+local function getRandomBlockKey(): number
 	local randomIndex: number = randomGenerator:NextInteger(1, #BLOCKS)
 
 	return randomIndex
@@ -67,8 +67,8 @@ local function grantEmptyTool(player: Player): ()
 	local selectedBlockKey: number = getRandomBlockKey()
 	local selectedBlock: BLOCKS.BlockDefinition = BLOCKS[selectedBlockKey]
 
-	toolInstance.RequiresHandle = false
 	toolInstance.Name = selectedBlock.NAME
+	toolInstance:SetAttribute(tool.TOOL_TYPE_ATTRIBUTE_NAME, tool.TYPE)
 	toolInstance:SetAttribute(tool.BLOCK_ATTRIBUTE_NAME, selectedBlockKey)
 	toolInstance.Parent = backpack
 end

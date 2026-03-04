@@ -35,13 +35,22 @@
           "$className": "Folder",
           "Delete": {
             "$className": "Tool",
+            "$attributes": {
+              "ToolType": "delete"
+            },
             "$properties": {
+              "RequiresHandle": false,
               "CanBeDropped": false
             }
           },
           "Create": {
             "$className": "Tool",
+            "$attributes": {
+              "BlockType": 1,
+              "ToolType": "create"
+            },
             "$properties": {
+              "RequiresHandle": false,
               "CanBeDropped": false
             }
           }
