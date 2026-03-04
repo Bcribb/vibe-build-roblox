@@ -10,6 +10,7 @@ local sharedFolder: Instance = ReplicatedStorage:WaitForChild("Shared")
 local constantsFolder: Instance = sharedFolder:WaitForChild("Constants")
 
 local TOOL_PROVIDER: any = require(constantsFolder:WaitForChild("ToolProvider"))
+local TOOLS: any = require(constantsFolder:WaitForChild("Tools"))
 
 local ToolProviderService: any = {}
 
@@ -52,9 +53,11 @@ local function grantEmptyTool(player: Player): ()
 		return
 	end
 
-	local tool: Tool = Instance.new("Tool")
-	tool.Name = EMPTY_TOOL_NAME
-	tool.Parent = backpack
+	local tool: TOOLS.ToolConstants = TOOLS.CREATE
+
+	local toolInstance: Tool = tool.TOOL:Clone()
+	toolInstance.Name = tool.NAME
+	toolInstance.Parent = backpack
 end
 
 local function pollProviderTouches(): ()

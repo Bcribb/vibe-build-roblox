@@ -14,7 +14,7 @@
       },
       "Assets": {
         "$className": "Folder",
-        "Tools": {
+        "ToolModels": {
           "$className": "Folder",
           "Cube": {
             "$className": "Model",
@@ -28,6 +28,21 @@
                   4
                 ]
               }
+            }
+          }
+        },
+        "Tools": {
+          "$className": "Folder",
+          "Delete": {
+            "$className": "Tool",
+            "$properties": {
+              "CanBeDropped": false
+            }
+          },
+          "Create": {
+            "$className": "Tool",
+            "$properties": {
+              "CanBeDropped": false
             }
           }
         }
