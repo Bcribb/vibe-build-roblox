@@ -1,0 +1,35 @@
+---
+description: Constants module naming conventions
+globs: **/*.luau
+alwaysApply: false
+---
+
+# Constants Module Naming
+
+In constants modules, name the top-level returned constants table using uppercase snake case.
+
+Use the uppercase table name to signal immutable configuration intent.
+Also name exported constant keys using uppercase snake case (for example `PROVIDER_TAG`).
+When requiring constants modules in other files, bind them to uppercase snake case locals too (for example `local TOOL_PROVIDER = require(...)`).
+
+## Prefer
+
+```luau
+local TOOL_PROVIDER: ToolProviderConstants = {
+	PROVIDER_TAG = "ToolProvider",
+	POLL_INTERVAL_SECONDS = 0.25,
+}
+
+return TOOL_PROVIDER
+```
+
+## Avoid
+
+```luau
+local ToolProvider: ToolProviderConstants = {
+	providerTag = "ToolProvider",
+	pollIntervalSeconds = 0.25,
+}
+
+return ToolProvider
+```

@@ -65,6 +65,9 @@
             8,
             8
           ],
+          "Tags": [
+            "ToolProvider"
+          ],
           "Transparency": 0.5
         }
       }
