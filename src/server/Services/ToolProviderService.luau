@@ -16,10 +16,50 @@ local ToolProviderService: any = {}
 local overlapParams: OverlapParams = OverlapParams.new()
 local heartbeatConnection: RBXScriptConnection? = nil
 local elapsedSeconds: number = 0
+local pollIntervalSeconds: number = 0
+local EMPTY_TOOL_NAME: string = "EmptyTool"
+
+local function hasToolInContainer(container: Instance): boolean
+	for _, child: Instance in container:GetChildren() do
+		if child:IsA("Tool") then
+			return true
+		end
+	end
+
+	return false
+end
+
+local function playerHasAnyTool(player: Player): boolean
+	local backpack: Instance? = player:FindFirstChildOfClass("Backpack")
+
+	if backpack ~= nil and hasToolInContainer(backpack) then
+		return true
+	end
+
+	local character: Model? = player.Character
+
+	if character ~= nil and hasToolInContainer(character) then
+		return true
+	end
+
+	return false
+end
+
+local function grantEmptyTool(player: Player): ()
+	local backpack: Instance? = player:FindFirstChildOfClass("Backpack")
+
+	if backpack == nil then
+		return
+	end
+
+	local tool: Tool = Instance.new("Tool")
+	tool.Name = EMPTY_TOOL_NAME
+	tool.Parent = backpack
+end
 
 local function pollProviderTouches(): ()
 	local providerParts: { Instance } = CollectionService:GetTagged(TOOL_PROVIDER.PROVIDER_TAG)
-	local printedPlayers: { [Player]: boolean } = {}
+	local processedPlayers: { [Player]: boolean } = {}
 
 	for _, providerInstance: Instance in providerParts do
 		if not providerInstance:IsA("BasePart") then
@@ -42,14 +82,41 @@ local function pollProviderTouches(): ()
 				continue
 			end
 
-			if printedPlayers[player] then
+			if processedPlayers[player] then
 				continue
 			end
 
-			printedPlayers[player] = true
-			print(player.Name)
+			processedPlayers[player] = true
+
+			if playerHasAnyTool(player) then
+				continue
+			end
+
+			grantEmptyTool(player)
 		end
 	end
+end
+
+local function shouldRunPoll(deltaTime: number, pollIntervalSeconds: number): boolean
+	elapsedSeconds += deltaTime
+
+	if elapsedSeconds < pollIntervalSeconds then
+		return false
+	end
+
+	while elapsedSeconds >= pollIntervalSeconds do
+		elapsedSeconds -= pollIntervalSeconds
+	end
+
+	return true
+end
+
+local function onHeartbeat(deltaTime: number): ()
+	if not shouldRunPoll(deltaTime, pollIntervalSeconds) then
+		return
+	end
+
+	pollProviderTouches()
 end
 
 function ToolProviderService.init(): ()
@@ -58,25 +125,12 @@ function ToolProviderService.init(): ()
 end
 
 function ToolProviderService.start(): ()
-	local pollIntervalSeconds: number = TOOL_PROVIDER.POLL_INTERVAL_SECONDS
-
 	if heartbeatConnection ~= nil then
 		return
 	end
 
-	heartbeatConnection = RunService.Heartbeat:Connect(function(deltaTime: number): ()
-		elapsedSeconds += deltaTime
-
-		if elapsedSeconds < pollIntervalSeconds then
-			return
-		end
-
-		while elapsedSeconds >= pollIntervalSeconds do
-			elapsedSeconds -= pollIntervalSeconds
-		end
-
-		pollProviderTouches()
-	end)
+	pollIntervalSeconds = TOOL_PROVIDER.POLL_INTERVAL_SECONDS
+	heartbeatConnection = RunService.Heartbeat:Connect(onHeartbeat)
 end
 
 return ToolProviderService
