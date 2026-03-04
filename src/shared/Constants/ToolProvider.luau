@@ -7,7 +7,7 @@ export type ToolProviderConstants = {
 
 local TOOL_PROVIDER: ToolProviderConstants = {
 	PROVIDER_TAG = "ToolProvider",
-	POLL_INTERVAL_SECONDS = 0.25,
+	POLL_INTERVAL_SECONDS = 0.2,
 }
 
 return TOOL_PROVIDER
