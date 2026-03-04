@@ -67,6 +67,7 @@ local function grantEmptyTool(player: Player): ()
 	local selectedBlockKey: number = getRandomBlockKey()
 	local selectedBlock: BLOCKS.BlockDefinition = BLOCKS[selectedBlockKey]
 
+	toolInstance.RequiresHandle = false
 	toolInstance.Name = selectedBlock.NAME
 	toolInstance:SetAttribute(tool.BLOCK_ATTRIBUTE_NAME, selectedBlockKey)
 	toolInstance.Parent = backpack
