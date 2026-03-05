@@ -12,7 +12,7 @@ local helpersFolder: Instance = sharedFolder:WaitForChild("Helpers")
 
 local Comm: any = require(packagesFolder:WaitForChild("Comm"))
 local TOOLS: any = require(constantsFolder:WaitForChild("Tools"))
-local CreateToolHelper: any = require(helpersFolder:WaitForChild("CreateToolHelper"))
+local BlockHelper: any = require(helpersFolder:WaitForChild("BlockHelper"))
 
 type PlaceableBlockInstance = Model | BasePart
 
@@ -71,7 +71,7 @@ end
 
 function BlockService.spawnBlock(blockDefinitionNumber: number, position: Vector3): PlaceableBlockInstance?
 	local blockInstance: PlaceableBlockInstance? =
-		CreateToolHelper.createBlockInstance(blockDefinitionNumber)
+		BlockHelper.createBlockInstance(blockDefinitionNumber)
 
 	if blockInstance == nil then
 		warn("[BlockService] Failed to create block instance for definition:", blockDefinitionNumber)

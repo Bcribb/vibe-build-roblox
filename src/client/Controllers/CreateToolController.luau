@@ -13,7 +13,7 @@ local helpersFolder: Instance = sharedFolder:WaitForChild("Helpers")
 
 local TOOLS: any = require(constantsFolder:WaitForChild("Tools"))
 local Comm: any = require(packagesFolder:WaitForChild("Comm"))
-local CreateToolHelper: any = require(helpersFolder:WaitForChild("CreateToolHelper"))
+local BlockHelper: any = require(helpersFolder:WaitForChild("BlockHelper"))
 local RaycastHelper: any = require(helpersFolder:WaitForChild("RaycastHelper"))
 
 local blockClientComm: any = Comm.ClientComm.new(remotesFolder, false, "BlockService")
@@ -191,14 +191,14 @@ function CreateToolController.createForTool(tool: Tool): ()
 	destroyActive()
 
 	local blockDefinitionNumber: number? =
-		CreateToolHelper.getBlockDefinitionNumber(tool)
+		BlockHelper.getBlockDefinitionNumber(tool)
 
 	if blockDefinitionNumber == nil then
 		return
 	end
 
 	local ghostInstance: Model | BasePart? =
-		CreateToolHelper.createBlockInstance(blockDefinitionNumber)
+		BlockHelper.createBlockInstance(blockDefinitionNumber)
 
 	if ghostInstance == nil then
 		return

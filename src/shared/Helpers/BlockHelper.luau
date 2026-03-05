@@ -11,9 +11,9 @@ local TOOLS: any = require(constantsFolder:WaitForChild("Tools"))
 type BlockDefinition = BLOCKS.BlockDefinition
 type CloneableBlockInstance = Model | BasePart
 
-local CreateToolHelper: any = {}
+local BlockHelper: any = {}
 
-function CreateToolHelper.getBlockDefinitionNumber(tool: Tool): number?
+function BlockHelper.getBlockDefinitionNumber(tool: Tool): number?
 	local value: any = tool:GetAttribute(TOOLS.CREATE.BLOCK_ATTRIBUTE_NAME)
 
 	if type(value) ~= "number" then
@@ -23,7 +23,7 @@ function CreateToolHelper.getBlockDefinitionNumber(tool: Tool): number?
 	return value
 end
 
-function CreateToolHelper.createBlockInstance(blockDefinitionNumber: number): CloneableBlockInstance?
+function BlockHelper.createBlockInstance(blockDefinitionNumber: number): CloneableBlockInstance?
 	local blockDefinition: BlockDefinition? = BLOCKS[blockDefinitionNumber]
 
 	if blockDefinition == nil then
@@ -33,4 +33,4 @@ function CreateToolHelper.createBlockInstance(blockDefinitionNumber: number): Cl
 	return blockDefinition.MODEL:Clone() :: CloneableBlockInstance
 end
 
-return CreateToolHelper
+return BlockHelper
