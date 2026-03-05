@@ -16,6 +16,7 @@ export type ToolConstants = {
 
 export type CreateToolConstants = ToolConstants & {
 	BLOCK_ATTRIBUTE_NAME: string,
+	PREVIEW_DISTANCE_STUDS: number,
 }
 
 export type ToolsConstants = {
@@ -36,6 +37,7 @@ local TOOLS: ToolsConstants = {
 		TOOL_TYPE_ATTRIBUTE_NAME = "ToolType",
 		TOOL = toolsFolder:WaitForChild("Create"),
 		BLOCK_ATTRIBUTE_NAME = "BlockType",
+		PREVIEW_DISTANCE_STUDS = 8,
 	},
 }
 

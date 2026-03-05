@@ -3,61 +3,66 @@
 local Players: Players = game:GetService("Players")
 local ReplicatedStorage: ReplicatedStorage = game:GetService("ReplicatedStorage")
 
+local clientFolder: Instance = ReplicatedStorage:WaitForChild("Client")
 local sharedFolder: Instance = ReplicatedStorage:WaitForChild("Shared")
+local classesFolder: Instance = clientFolder:WaitForChild("Classes")
 local constantsFolder: Instance = sharedFolder:WaitForChild("Constants")
 
 local TOOLS: any = require(constantsFolder:WaitForChild("Tools"))
 
+local CreateTool: any = require(classesFolder:WaitForChild("CreateTool"))
+
 local ToolController: any = {}
 
-local equippedConnections: { [Tool]: RBXScriptConnection } = {}
-local observedContainers: { [Instance]: boolean } = {}
+local createTool: any = CreateTool.new()
 
 local function onToolEquipped(tool: Tool): ()
 	local toolType: string? = tool:GetAttribute(TOOLS.CREATE.TOOL_TYPE_ATTRIBUTE_NAME) :: string?
 
-	if toolType == TOOLS.CREATE.TYPE then
-		print("[ToolController] Equipped create tool", tool.Name, "linked block", tool.Name)
+	if toolType ~= TOOLS.CREATE.TYPE then
+		createTool:destroyActive()
 		return
 	end
 
-	print("[ToolController] Equipped", tool.Name)
+	createTool:createForTool(tool)
 end
 
-local function connectTool(tool: Tool): ()
-	if equippedConnections[tool] ~= nil then
+local function onToolUnequipped(tool: Tool): ()
+	local toolType: string? = tool:GetAttribute(TOOLS.CREATE.TOOL_TYPE_ATTRIBUTE_NAME) :: string?
+
+	if toolType ~= TOOLS.CREATE.TYPE then
 		return
 	end
 
-	local equippedConnection: RBXScriptConnection = tool.Equipped:Connect(function(): ()
-		onToolEquipped(tool)
-	end)
-	equippedConnections[tool] = equippedConnection
+	createTool:clearForTool(tool)
 end
 
-local function watchContainer(container: Instance): ()
-	if observedContainers[container] then
-		return
-	end
-
-	observedContainers[container] = true
-
-	for _, child: Instance in container:GetChildren() do
+local function watchCharacter(character: Model): ()
+	for _, child: Instance in character:GetChildren() do
 		if not child:IsA("Tool") then
 			continue
 		end
 
 		local tool: Tool = child
-		connectTool(tool)
+		onToolEquipped(tool)
 	end
 
-	container.ChildAdded:Connect(function(child: Instance): ()
+	character.ChildAdded:Connect(function(child: Instance): ()
 		if not child:IsA("Tool") then
 			return
 		end
 
 		local tool: Tool = child
-		connectTool(tool)
+		onToolEquipped(tool)
+	end)
+
+	character.ChildRemoved:Connect(function(child: Instance): ()
+		if not child:IsA("Tool") then
+			return
+		end
+
+		local tool: Tool = child
+		onToolUnequipped(tool)
 	end)
 end
 
@@ -66,18 +71,16 @@ end
 
 function ToolController.start(): ()
 	local localPlayer: Player = Players.LocalPlayer
-	local backpack: Backpack = localPlayer:WaitForChild("Backpack") :: Backpack
-
-	watchContainer(backpack)
 
 	local character: Model? = localPlayer.Character
 
 	if character ~= nil then
-		watchContainer(character)
+		watchCharacter(character)
 	end
 
 	localPlayer.CharacterAdded:Connect(function(addedCharacter: Model): ()
-		watchContainer(addedCharacter)
+		createTool:destroyActive()
+		watchCharacter(addedCharacter)
 	end)
 end
 
