@@ -3,7 +3,6 @@
 local Players: Players = game:GetService("Players")
 local ReplicatedStorage: ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService: RunService = game:GetService("RunService")
-local UserInputService: UserInputService = game:GetService("UserInputService")
 local Workspace: Workspace = game:GetService("Workspace")
 
 local packagesFolder: Instance = ReplicatedStorage:WaitForChild("Packages")
@@ -15,6 +14,7 @@ local helpersFolder: Instance = sharedFolder:WaitForChild("Helpers")
 local TOOLS: any = require(constantsFolder:WaitForChild("Tools"))
 local Comm: any = require(packagesFolder:WaitForChild("Comm"))
 local CreateToolHelper: any = require(helpersFolder:WaitForChild("CreateToolHelper"))
+local RaycastHelper: any = require(helpersFolder:WaitForChild("RaycastHelper"))
 
 local blockClientComm: any = Comm.ClientComm.new(remotesFolder, false, "BlockService")
 local spawnBlockRemote: any = blockClientComm:GetFunction("SpawnBlock")
@@ -72,25 +72,14 @@ local function getPreviewTargetCFrame(previewGhost: PVInstance?): CFrame?
 		return nil
 	end
 
-	local camera: Camera? = Workspace.CurrentCamera
-
-	if camera == nil then
-		return nil
-	end
-
-	local mouseLocation: Vector2 = UserInputService:GetMouseLocation()
-	local mouseRay: Ray = camera:ViewportPointToRay(mouseLocation.X, mouseLocation.Y)
-	local filterInstances: { Instance } = { character }
+	local excludedInstances: { Instance } = { character }
 
 	if previewGhost ~= nil then
 		local previewGhostInstance: Instance = previewGhost :: any
-		table.insert(filterInstances, previewGhostInstance)
+		table.insert(excludedInstances, previewGhostInstance)
 	end
 
-	local raycastParams: RaycastParams = RaycastParams.new()
-	raycastParams.FilterType = Enum.RaycastFilterType.Exclude
-	raycastParams.FilterDescendantsInstances = filterInstances
-	local raycastResult: RaycastResult? = Workspace:Raycast(mouseRay.Origin, mouseRay.Direction * 1000, raycastParams)
+	local raycastResult: RaycastResult? = RaycastHelper.raycastFromMouse(excludedInstances)
 
 	if raycastResult == nil then
 		return nil

@@ -20,7 +20,7 @@ export type CreateToolConstants = ToolConstants & {
 	PREVIEW_DISTANCE_STUDS: number,
 }
 
-export type HighlightDepthMode = "AlwaysOnTop" | "Occluded"
+export type HighlightDepthMode = Enum.HighlightDepthMode
 
 export type DeleteToolConstants = ToolConstants & {
 	MAX_DISTANCE_STUDS: number,
@@ -47,7 +47,7 @@ local TOOLS: ToolsConstants = {
 		HIGHLIGHT_FILL_TRANSPARENCY = 0.7,
 		HIGHLIGHT_OUTLINE_COLOR = Color3.fromRGB(255, 0, 0),
 		HIGHLIGHT_OUTLINE_TRANSPARENCY = 0,
-		HIGHLIGHT_DEPTH_MODE = "AlwaysOnTop",
+		HIGHLIGHT_DEPTH_MODE = Enum.HighlightDepthMode.AlwaysOnTop,
 	},
 	CREATE = {
 		NAME = "Create",
