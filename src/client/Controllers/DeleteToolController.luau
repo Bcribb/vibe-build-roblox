@@ -7,10 +7,16 @@ local RunService: RunService = game:GetService("RunService")
 local UserInputService: UserInputService = game:GetService("UserInputService")
 local Workspace: Workspace = game:GetService("Workspace")
 
+local packagesFolder: Instance = ReplicatedStorage:WaitForChild("Packages")
+local remotesFolder: Folder = ReplicatedStorage:WaitForChild("Remotes") :: Folder
 local sharedFolder: Instance = ReplicatedStorage:WaitForChild("Shared")
 local constantsFolder: Instance = sharedFolder:WaitForChild("Constants")
 
 local TOOLS: any = require(constantsFolder:WaitForChild("Tools"))
+local Comm: any = require(packagesFolder:WaitForChild("Comm"))
+
+local blockClientComm: any = Comm.ClientComm.new(remotesFolder, false, "BlockService")
+local destroyBlockRemote: any = blockClientComm:GetFunction("DestroyBlock")
 
 type DeleteState = {
 	tool: Tool,
@@ -133,7 +139,7 @@ local function destroyModelUnderMouse(): ()
 		return
 	end
 
-	targetModel:Destroy()
+	destroyBlockRemote(targetModel)
 end
 
 function DeleteToolController.destroyActive(): ()

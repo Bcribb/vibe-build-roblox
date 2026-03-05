@@ -1,22 +1,27 @@
 --!strict
 
 local Players: Players = game:GetService("Players")
-local CollectionService: CollectionService = game:GetService("CollectionService")
 local ReplicatedStorage: ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService: RunService = game:GetService("RunService")
 local UserInputService: UserInputService = game:GetService("UserInputService")
 local Workspace: Workspace = game:GetService("Workspace")
 
+local packagesFolder: Instance = ReplicatedStorage:WaitForChild("Packages")
+local remotesFolder: Folder = ReplicatedStorage:WaitForChild("Remotes") :: Folder
 local sharedFolder: Instance = ReplicatedStorage:WaitForChild("Shared")
 local constantsFolder: Instance = sharedFolder:WaitForChild("Constants")
 
 local BLOCKS: any = require(constantsFolder:WaitForChild("Blocks"))
 local TOOLS: any = require(constantsFolder:WaitForChild("Tools"))
+local Comm: any = require(packagesFolder:WaitForChild("Comm"))
+
+local blockClientComm: any = Comm.ClientComm.new(remotesFolder, false, "BlockService")
+local spawnBlockRemote: any = blockClientComm:GetFunction("SpawnBlock")
 
 type PreviewState = {
 	tool: Tool,
 	ghost: PVInstance,
-	sourceModel: Instance,
+	blockDefinitionNumber: number,
 	rotation: CFrame,
 	renderConnection: RBXScriptConnection,
 	activatedConnection: RBXScriptConnection,
@@ -163,20 +168,8 @@ local function placeActiveModel(): ()
 		return
 	end
 
-	local placedInstance: Instance = preview.sourceModel:Clone()
-
-	if not placedInstance:IsA("Model") and not placedInstance:IsA("BasePart") then
-		placedInstance:Destroy()
-		error("[CreateToolController] Block model clone must be Model or BasePart")
-	end
-
-	local placementTarget: PVInstance = placedInstance :: any
-	placedInstance.Parent = Workspace
-	placementTarget:PivotTo(preview.ghost:GetPivot())
-
-	if placedInstance:IsA("Model") then
-		CollectionService:AddTag(placedInstance, TOOLS.CREATE.CREATED_MODEL_TAG)
-	end
+	local placementPosition: Vector3 = preview.ghost:GetPivot().Position
+	spawnBlockRemote(preview.blockDefinitionNumber, placementPosition)
 end
 
 local function updateActiveCFrame(): ()
@@ -248,7 +241,7 @@ function CreateToolController.createForTool(tool: Tool): ()
 	activePreview = {
 		tool = tool,
 		ghost = ghost,
-		sourceModel = sourceModel,
+		blockDefinitionNumber = blockKey,
 		rotation = rotationOnly,
 		renderConnection = renderConnection,
 		activatedConnection = activatedConnection,

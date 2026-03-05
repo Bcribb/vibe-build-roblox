@@ -9,6 +9,9 @@
       "Packages": {
         "$path": "Packages"
       },
+      "Remotes": {
+        "$className": "Folder"
+      },
       "Shared": {
         "$path": "src/shared"
       },
