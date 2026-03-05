@@ -4,27 +4,25 @@ local Players: Players = game:GetService("Players")
 local ReplicatedStorage: ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local clientFolder: Instance = ReplicatedStorage:WaitForChild("Client")
+local controllersFolder: Instance = clientFolder:WaitForChild("Controllers")
 local sharedFolder: Instance = ReplicatedStorage:WaitForChild("Shared")
-local classesFolder: Instance = clientFolder:WaitForChild("Classes")
 local constantsFolder: Instance = sharedFolder:WaitForChild("Constants")
 
 local TOOLS: any = require(constantsFolder:WaitForChild("Tools"))
 
-local CreateTool: any = require(classesFolder:WaitForChild("CreateTool"))
+local CreateToolController: any = require(controllersFolder:WaitForChild("CreateToolController"))
 
 local ToolController: any = {}
-
-local createTool: any = CreateTool.new()
 
 local function onToolEquipped(tool: Tool): ()
 	local toolType: string? = tool:GetAttribute(TOOLS.CREATE.TOOL_TYPE_ATTRIBUTE_NAME) :: string?
 
 	if toolType ~= TOOLS.CREATE.TYPE then
-		createTool:destroyActive()
+		CreateToolController.destroyActive()
 		return
 	end
 
-	createTool:createForTool(tool)
+	CreateToolController.createForTool(tool)
 end
 
 local function onToolUnequipped(tool: Tool): ()
@@ -34,7 +32,7 @@ local function onToolUnequipped(tool: Tool): ()
 		return
 	end
 
-	createTool:clearForTool(tool)
+	CreateToolController.clearForTool(tool)
 end
 
 local function watchCharacter(character: Model): ()
@@ -79,7 +77,7 @@ function ToolController.start(): ()
 	end
 
 	localPlayer.CharacterAdded:Connect(function(addedCharacter: Model): ()
-		createTool:destroyActive()
+		CreateToolController.destroyActive()
 		watchCharacter(addedCharacter)
 	end)
 end

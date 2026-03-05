@@ -21,16 +21,9 @@ type PreviewState = {
 	activatedConnection: RBXScriptConnection,
 }
 
-export type CreateTool = {
-	activePreview: PreviewState?,
-	destroyActive: (self: CreateTool) -> (),
-	placeActiveModel: (self: CreateTool) -> (),
-	createForTool: (self: CreateTool, tool: Tool) -> (),
-	clearForTool: (self: CreateTool, tool: Tool) -> (),
-}
+local CreateToolController: any = {}
 
-local CreateTool: any = {}
-CreateTool.__index = CreateTool
+local activePreview: PreviewState? = nil
 
 local function getBoundsForPlacement(target: PVInstance): (CFrame, Vector3)
 	if target:IsA("BasePart") then
@@ -142,16 +135,8 @@ local function setGhostVisuals(ghostRoot: Instance): ()
 	end
 end
 
-function CreateTool.new(): CreateTool
-	local self: CreateTool = setmetatable({
-		activePreview = nil,
-	}, CreateTool)
-
-	return self
-end
-
-function CreateTool:destroyActive(): ()
-	local preview: PreviewState? = self.activePreview
+local function destroyActive(): ()
+	local preview: PreviewState? = activePreview
 
 	if preview == nil then
 		return
@@ -162,18 +147,18 @@ function CreateTool:destroyActive(): ()
 	local ghostInstance: Instance = preview.ghost :: any
 
 	ghostInstance:Destroy()
-	self.activePreview = nil
+	activePreview = nil
 end
 
-function CreateTool:placeActiveModel(): ()
-	local preview: PreviewState? = self.activePreview
+local function placeActiveModel(): ()
+	local preview: PreviewState? = activePreview
 
 	if preview == nil then
 		return
 	end
 
 	if preview.tool.Parent == nil then
-		self:destroyActive()
+		destroyActive()
 		return
 	end
 
@@ -181,7 +166,7 @@ function CreateTool:placeActiveModel(): ()
 
 	if not placedInstance:IsA("Model") and not placedInstance:IsA("BasePart") then
 		placedInstance:Destroy()
-		error("[CreateTool] Block model clone must be Model or BasePart")
+		error("[CreateToolController] Block model clone must be Model or BasePart")
 	end
 
 	local placementTarget: PVInstance = placedInstance :: any
@@ -189,15 +174,15 @@ function CreateTool:placeActiveModel(): ()
 	placementTarget:PivotTo(preview.ghost:GetPivot())
 end
 
-function CreateTool:updateActiveCFrame(): ()
-	local preview: PreviewState? = self.activePreview
+local function updateActiveCFrame(): ()
+	local preview: PreviewState? = activePreview
 
 	if preview == nil then
 		return
 	end
 
 	if preview.tool.Parent == nil then
-		self:destroyActive()
+		destroyActive()
 		return
 	end
 
@@ -210,32 +195,36 @@ function CreateTool:updateActiveCFrame(): ()
 	preview.ghost:PivotTo(targetTranslation * preview.rotation)
 end
 
-function CreateTool:createForTool(tool: Tool): ()
-	self:destroyActive()
+function CreateToolController.destroyActive(): ()
+	destroyActive()
+end
+
+function CreateToolController.createForTool(tool: Tool): ()
+	destroyActive()
 
 	local blockKey: number? = tool:GetAttribute(TOOLS.CREATE.BLOCK_ATTRIBUTE_NAME) :: number?
 
 	if blockKey == nil then
-		error("[CreateTool] Missing block attribute on create tool")
+		error("[CreateToolController] Missing block attribute on create tool")
 	end
 
 	local blockDefinition: any = BLOCKS[blockKey]
 
 	if blockDefinition == nil then
-		error("[CreateTool] Missing block definition for block key")
+		error("[CreateToolController] Missing block definition for block key")
 	end
 
 	local sourceModel: Instance? = blockDefinition.MODEL
 
 	if sourceModel == nil then
-		error("[CreateTool] Block definition is missing MODEL")
+		error("[CreateToolController] Block definition is missing MODEL")
 	end
 
 	local ghostInstance: Instance = sourceModel:Clone()
 
 	if not ghostInstance:IsA("Model") and not ghostInstance:IsA("BasePart") then
 		ghostInstance:Destroy()
-		error("[CreateTool] Block model clone must be Model or BasePart")
+		error("[CreateToolController] Block model clone must be Model or BasePart")
 	end
 
 	setGhostVisuals(ghostInstance)
@@ -245,13 +234,13 @@ function CreateTool:createForTool(tool: Tool): ()
 	local currentPivot: CFrame = ghost:GetPivot()
 	local rotationOnly: CFrame = currentPivot.Rotation
 	local renderConnection: RBXScriptConnection = RunService.RenderStepped:Connect(function(): ()
-		self:updateActiveCFrame()
+		updateActiveCFrame()
 	end)
 	local activatedConnection: RBXScriptConnection = tool.Activated:Connect(function(): ()
-		self:placeActiveModel()
+		placeActiveModel()
 	end)
 
-	self.activePreview = {
+	activePreview = {
 		tool = tool,
 		ghost = ghost,
 		sourceModel = sourceModel,
@@ -260,11 +249,11 @@ function CreateTool:createForTool(tool: Tool): ()
 		activatedConnection = activatedConnection,
 	}
 
-	self:updateActiveCFrame()
+	updateActiveCFrame()
 end
 
-function CreateTool:clearForTool(tool: Tool): ()
-	local preview: PreviewState? = self.activePreview
+function CreateToolController.clearForTool(tool: Tool): ()
+	local preview: PreviewState? = activePreview
 
 	if preview == nil then
 		return
@@ -274,7 +263,7 @@ function CreateTool:clearForTool(tool: Tool): ()
 		return
 	end
 
-	self:destroyActive()
+	destroyActive()
 end
 
-return CreateTool
+return CreateToolController
