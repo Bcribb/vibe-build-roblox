@@ -3,6 +3,7 @@
 local Players: Players = game:GetService("Players")
 local ReplicatedStorage: ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService: RunService = game:GetService("RunService")
+local UserInputService: UserInputService = game:GetService("UserInputService")
 local Workspace: Workspace = game:GetService("Workspace")
 
 local sharedFolder: Instance = ReplicatedStorage:WaitForChild("Shared")
@@ -14,13 +15,16 @@ local TOOLS: any = require(constantsFolder:WaitForChild("Tools"))
 type PreviewState = {
 	tool: Tool,
 	ghost: PVInstance,
+	sourceModel: Instance,
 	rotation: CFrame,
 	renderConnection: RBXScriptConnection,
+	activatedConnection: RBXScriptConnection,
 }
 
 export type CreateTool = {
 	activePreview: PreviewState?,
 	destroyActive: (self: CreateTool) -> (),
+	placeActiveModel: (self: CreateTool) -> (),
 	createForTool: (self: CreateTool, tool: Tool) -> (),
 	clearForTool: (self: CreateTool, tool: Tool) -> (),
 }
@@ -28,7 +32,33 @@ export type CreateTool = {
 local CreateTool: any = {}
 CreateTool.__index = CreateTool
 
-local function getPreviewTargetCFrame(): CFrame?
+local function getBoundsForPlacement(target: PVInstance): (CFrame, Vector3)
+	if target:IsA("BasePart") then
+		local targetPart: BasePart = target
+
+		return targetPart.CFrame, targetPart.Size
+	end
+
+	local targetModel: Model = target :: Model
+
+	return targetModel:GetBoundingBox()
+end
+
+local function getNormalOffsetDistance(target: PVInstance, normal: Vector3): number
+	local boundsCFrame: CFrame, boundsSize: Vector3 = getBoundsForPlacement(target)
+	local rightVector: Vector3 = boundsCFrame.RightVector
+	local upVector: Vector3 = boundsCFrame.UpVector
+	local lookVector: Vector3 = boundsCFrame.LookVector
+	local projectedHalfExtent: number = (
+		math.abs(normal:Dot(rightVector)) * boundsSize.X
+		+ math.abs(normal:Dot(upVector)) * boundsSize.Y
+		+ math.abs(normal:Dot(lookVector)) * boundsSize.Z
+	) * 0.5
+
+	return projectedHalfExtent
+end
+
+local function getPreviewTargetCFrame(previewGhost: PVInstance?): CFrame?
 	local localPlayer: Player = Players.LocalPlayer
 	local character: Model? = localPlayer.Character
 
@@ -48,9 +78,42 @@ local function getPreviewTargetCFrame(): CFrame?
 		return nil
 	end
 
-	local previewPosition: Vector3 = rootPart.Position + (camera.CFrame.LookVector * TOOLS.CREATE.PREVIEW_DISTANCE_STUDS)
+	local mouseLocation: Vector2 = UserInputService:GetMouseLocation()
+	local mouseRay: Ray = camera:ViewportPointToRay(mouseLocation.X, mouseLocation.Y)
+	local filterInstances: { Instance } = { character }
 
-	return CFrame.new(previewPosition)
+	if previewGhost ~= nil then
+		local previewGhostInstance: Instance = previewGhost :: any
+		table.insert(filterInstances, previewGhostInstance)
+	end
+
+	local raycastParams: RaycastParams = RaycastParams.new()
+	raycastParams.FilterType = Enum.RaycastFilterType.Exclude
+	raycastParams.FilterDescendantsInstances = filterInstances
+	local raycastResult: RaycastResult? = Workspace:Raycast(mouseRay.Origin, mouseRay.Direction * 1000, raycastParams)
+
+	if raycastResult == nil then
+		return nil
+	end
+
+	local rootPosition: Vector3 = rootPart.Position
+	local targetPosition: Vector3 = raycastResult.Position
+	local hitNormal: Vector3 = raycastResult.Normal
+
+	if previewGhost ~= nil then
+		local normalOffsetDistance: number = getNormalOffsetDistance(previewGhost, hitNormal)
+		targetPosition += hitNormal * normalOffsetDistance
+	end
+
+	local maxDistance: number = TOOLS.CREATE.PREVIEW_DISTANCE_STUDS
+	local offset: Vector3 = targetPosition - rootPosition
+	local offsetMagnitude: number = offset.Magnitude
+
+	if offsetMagnitude > maxDistance then
+		targetPosition = rootPosition + (offset.Unit * maxDistance)
+	end
+
+	return CFrame.new(targetPosition)
 end
 
 local function setGhostVisuals(ghostRoot: Instance): ()
@@ -95,10 +158,35 @@ function CreateTool:destroyActive(): ()
 	end
 
 	preview.renderConnection:Disconnect()
+	preview.activatedConnection:Disconnect()
 	local ghostInstance: Instance = preview.ghost :: any
 
 	ghostInstance:Destroy()
 	self.activePreview = nil
+end
+
+function CreateTool:placeActiveModel(): ()
+	local preview: PreviewState? = self.activePreview
+
+	if preview == nil then
+		return
+	end
+
+	if preview.tool.Parent == nil then
+		self:destroyActive()
+		return
+	end
+
+	local placedInstance: Instance = preview.sourceModel:Clone()
+
+	if not placedInstance:IsA("Model") and not placedInstance:IsA("BasePart") then
+		placedInstance:Destroy()
+		error("[CreateTool] Block model clone must be Model or BasePart")
+	end
+
+	local placementTarget: PVInstance = placedInstance :: any
+	placedInstance.Parent = Workspace
+	placementTarget:PivotTo(preview.ghost:GetPivot())
 end
 
 function CreateTool:updateActiveCFrame(): ()
@@ -113,7 +201,7 @@ function CreateTool:updateActiveCFrame(): ()
 		return
 	end
 
-	local targetTranslation: CFrame? = getPreviewTargetCFrame()
+	local targetTranslation: CFrame? = getPreviewTargetCFrame(preview.ghost)
 
 	if targetTranslation == nil then
 		return
@@ -159,12 +247,17 @@ function CreateTool:createForTool(tool: Tool): ()
 	local renderConnection: RBXScriptConnection = RunService.RenderStepped:Connect(function(): ()
 		self:updateActiveCFrame()
 	end)
+	local activatedConnection: RBXScriptConnection = tool.Activated:Connect(function(): ()
+		self:placeActiveModel()
+	end)
 
 	self.activePreview = {
 		tool = tool,
 		ghost = ghost,
+		sourceModel = sourceModel,
 		rotation = rotationOnly,
 		renderConnection = renderConnection,
+		activatedConnection = activatedConnection,
 	}
 
 	self:updateActiveCFrame()
