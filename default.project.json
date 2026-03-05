@@ -29,6 +29,36 @@
                 ]
               }
             }
+          },
+          "Wedge": {
+            "$className": "Model",
+            "WedgePart": {
+              "$className": "Part",
+              "$properties": {
+                "Anchored": true,
+                "Shape": "Wedge",
+                "Size": [
+                  4,
+                  4,
+                  4
+                ]
+              }
+            }
+          },
+          "Sphere": {
+            "$className": "Model",
+            "SpherePart": {
+              "$className": "Part",
+              "$properties": {
+                "Anchored": true,
+                "Shape": "Ball",
+                "Size": [
+                  4,
+                  4,
+                  4
+                ]
+              }
+            }
           }
         },
         "Tools": {
