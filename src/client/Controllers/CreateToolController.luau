@@ -12,9 +12,11 @@ local constantsFolder: Instance = sharedFolder:WaitForChild("Constants")
 local helpersFolder: Instance = sharedFolder:WaitForChild("Helpers")
 
 local TOOLS: any = require(constantsFolder:WaitForChild("Tools"))
-local Comm: any = require(packagesFolder:WaitForChild("Comm"))
+
 local BlockHelper: any = require(helpersFolder:WaitForChild("BlockHelper"))
 local RaycastHelper: any = require(helpersFolder:WaitForChild("RaycastHelper"))
+
+local Comm: any = require(packagesFolder:WaitForChild("Comm"))
 
 local blockClientComm: any = Comm.ClientComm.new(remotesFolder, false, "BlockService")
 local spawnBlockRemote: any = blockClientComm:GetFunction("SpawnBlock")
@@ -24,39 +26,12 @@ type PreviewState = {
 	ghost: PVInstance,
 	blockDefinitionNumber: number,
 	rotation: CFrame,
-	renderConnection: RBXScriptConnection,
 	activatedConnection: RBXScriptConnection,
 }
 
 local CreateToolController: any = {}
 
 local activePreview: PreviewState? = nil
-
-local function getBoundsForPlacement(target: PVInstance): (CFrame, Vector3)
-	if target:IsA("BasePart") then
-		local targetPart: BasePart = target
-
-		return targetPart.CFrame, targetPart.Size
-	end
-
-	local targetModel: Model = target :: Model
-
-	return targetModel:GetBoundingBox()
-end
-
-local function getNormalOffsetDistance(target: PVInstance, normal: Vector3): number
-	local boundsCFrame: CFrame, boundsSize: Vector3 = getBoundsForPlacement(target)
-	local rightVector: Vector3 = boundsCFrame.RightVector
-	local upVector: Vector3 = boundsCFrame.UpVector
-	local lookVector: Vector3 = boundsCFrame.LookVector
-	local projectedHalfExtent: number = (
-		math.abs(normal:Dot(rightVector)) * boundsSize.X
-		+ math.abs(normal:Dot(upVector)) * boundsSize.Y
-		+ math.abs(normal:Dot(lookVector)) * boundsSize.Z
-	) * 0.5
-
-	return projectedHalfExtent
-end
 
 local function getPreviewTargetCFrame(previewGhost: PVInstance?): CFrame?
 	local localPlayer: Player = Players.LocalPlayer
@@ -90,45 +65,28 @@ local function getPreviewTargetCFrame(previewGhost: PVInstance?): CFrame?
 	local hitNormal: Vector3 = raycastResult.Normal
 
 	if previewGhost ~= nil then
-		local normalOffsetDistance: number = getNormalOffsetDistance(previewGhost, hitNormal)
-		targetPosition += hitNormal * normalOffsetDistance
+		targetPosition = BlockHelper.applyNormalOffset(previewGhost, targetPosition, hitNormal)
 	end
 
 	local maxDistance: number = TOOLS.CREATE.PREVIEW_DISTANCE_STUDS
-	local offset: Vector3 = targetPosition - rootPosition
-	local offsetMagnitude: number = offset.Magnitude
+	local clampedTargetPosition: Vector3 =
+		BlockHelper.clampPositionFromOrigin(rootPosition, targetPosition, maxDistance)
 
-	if offsetMagnitude > maxDistance then
-		targetPosition = rootPosition + (offset.Unit * maxDistance)
-	end
-
-	return CFrame.new(targetPosition)
+	return CFrame.new(clampedTargetPosition)
 end
 
-local function setGhostVisuals(ghostRoot: Instance): ()
-	if ghostRoot:IsA("BasePart") then
-		local ghostPart: BasePart = ghostRoot
-		ghostPart.Anchored = true
-		ghostPart.Massless = true
-		ghostPart.CanCollide = false
-		ghostPart.CanTouch = false
-		ghostPart.CanQuery = false
-		ghostPart.Transparency = math.max(ghostPart.Transparency, 0.65)
-	end
+local function disconnectConnection(connection: RBXScriptConnection): ()
+	connection:Disconnect()
+end
 
-	for _, descendant: Instance in ghostRoot:GetDescendants() do
-		if not descendant:IsA("BasePart") then
-			continue
-		end
+local function destroyGhost(ghost: PVInstance): ()
+	local ghostInstance: Instance = ghost :: any
 
-		local ghostPart: BasePart = descendant
-		ghostPart.Anchored = true
-		ghostPart.Massless = true
-		ghostPart.CanCollide = false
-		ghostPart.CanTouch = false
-		ghostPart.CanQuery = false
-		ghostPart.Transparency = math.max(ghostPart.Transparency, 0.65)
-	end
+	ghostInstance:Destroy()
+end
+
+local function isToolActive(preview: PreviewState): boolean
+	return preview.tool.Parent ~= nil
 end
 
 local function destroyActive(): ()
@@ -138,23 +96,30 @@ local function destroyActive(): ()
 		return
 	end
 
-	preview.renderConnection:Disconnect()
-	preview.activatedConnection:Disconnect()
-	local ghostInstance: Instance = preview.ghost :: any
-
-	ghostInstance:Destroy()
+	disconnectConnection(preview.activatedConnection)
+	destroyGhost(preview.ghost)
 	activePreview = nil
 end
 
-local function placeActiveModel(): ()
+local function getLivePreview(): PreviewState?
 	local preview: PreviewState? = activePreview
 
 	if preview == nil then
 		return
 	end
 
-	if preview.tool.Parent == nil then
+	if not isToolActive(preview) then
 		destroyActive()
+		return
+	end
+
+	return preview
+end
+
+local function placeActiveModel(): ()
+	local preview: PreviewState? = getLivePreview()
+
+	if preview == nil then
 		return
 	end
 
@@ -163,14 +128,9 @@ local function placeActiveModel(): ()
 end
 
 local function updateActiveCFrame(): ()
-	local preview: PreviewState? = activePreview
+	local preview: PreviewState? = getLivePreview()
 
 	if preview == nil then
-		return
-	end
-
-	if preview.tool.Parent == nil then
-		destroyActive()
 		return
 	end
 
@@ -190,12 +150,7 @@ end
 function CreateToolController.createForTool(tool: Tool): ()
 	destroyActive()
 
-	local blockDefinitionNumber: number? =
-		BlockHelper.getBlockDefinitionNumber(tool)
-
-	if blockDefinitionNumber == nil then
-		return
-	end
+	local blockDefinitionNumber: number = tool:GetAttribute(TOOLS.CREATE.BLOCK_ATTRIBUTE_NAME)
 
 	local ghostInstance: Model | BasePart? =
 		BlockHelper.createBlockInstance(blockDefinitionNumber)
@@ -204,15 +159,12 @@ function CreateToolController.createForTool(tool: Tool): ()
 		return
 	end
 
-	setGhostVisuals(ghostInstance)
+	BlockHelper.setGhostVisuals(ghostInstance)
 	ghostInstance.Parent = Workspace
 
 	local ghost: PVInstance = ghostInstance :: any
 	local currentPivot: CFrame = ghost:GetPivot()
 	local rotationOnly: CFrame = currentPivot.Rotation
-	local renderConnection: RBXScriptConnection = RunService.RenderStepped:Connect(function(): ()
-		updateActiveCFrame()
-	end)
 	local activatedConnection: RBXScriptConnection = tool.Activated:Connect(function(): ()
 		placeActiveModel()
 	end)
@@ -222,7 +174,6 @@ function CreateToolController.createForTool(tool: Tool): ()
 		ghost = ghost,
 		blockDefinitionNumber = blockDefinitionNumber,
 		rotation = rotationOnly,
-		renderConnection = renderConnection,
 		activatedConnection = activatedConnection,
 	}
 
@@ -242,5 +193,13 @@ function CreateToolController.clearForTool(tool: Tool): ()
 
 	destroyActive()
 end
+
+RunService.RenderStepped:Connect(function(): ()
+	if activePreview == nil then
+		return
+	end
+
+	updateActiveCFrame()
+end)
 
 return CreateToolController
