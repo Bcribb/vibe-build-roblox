@@ -11,28 +11,44 @@ local constantsFolder: Instance = sharedFolder:WaitForChild("Constants")
 local TOOLS: any = require(constantsFolder:WaitForChild("Tools"))
 
 local CreateToolController: any = require(controllersFolder:WaitForChild("CreateToolController"))
+local DeleteToolController: any = require(controllersFolder:WaitForChild("DeleteToolController"))
 
 local ToolController: any = {}
 
 local function onToolEquipped(tool: Tool): ()
 	local toolType: string? = tool:GetAttribute(TOOLS.CREATE.TOOL_TYPE_ATTRIBUTE_NAME) :: string?
 
-	if toolType ~= TOOLS.CREATE.TYPE then
-		CreateToolController.destroyActive()
+	if toolType == TOOLS.CREATE.TYPE then
+		DeleteToolController.destroyActive()
+		CreateToolController.createForTool(tool)
 		return
 	end
 
-	CreateToolController.createForTool(tool)
+	if toolType == TOOLS.DELETE.TYPE then
+		CreateToolController.destroyActive()
+		DeleteToolController.createForTool(tool)
+		return
+	end
+
+	CreateToolController.destroyActive()
+	DeleteToolController.destroyActive()
 end
 
 local function onToolUnequipped(tool: Tool): ()
 	local toolType: string? = tool:GetAttribute(TOOLS.CREATE.TOOL_TYPE_ATTRIBUTE_NAME) :: string?
 
-	if toolType ~= TOOLS.CREATE.TYPE then
+	if toolType == TOOLS.CREATE.TYPE then
+		CreateToolController.clearForTool(tool)
 		return
 	end
 
-	CreateToolController.clearForTool(tool)
+	if toolType == TOOLS.DELETE.TYPE then
+		DeleteToolController.clearForTool(tool)
+		return
+	end
+
+	CreateToolController.destroyActive()
+	DeleteToolController.destroyActive()
 end
 
 local function watchCharacter(character: Model): ()
@@ -78,6 +94,7 @@ function ToolController.start(): ()
 
 	localPlayer.CharacterAdded:Connect(function(addedCharacter: Model): ()
 		CreateToolController.destroyActive()
+		DeleteToolController.destroyActive()
 		watchCharacter(addedCharacter)
 	end)
 end

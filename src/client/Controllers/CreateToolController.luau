@@ -1,6 +1,7 @@
 --!strict
 
 local Players: Players = game:GetService("Players")
+local CollectionService: CollectionService = game:GetService("CollectionService")
 local ReplicatedStorage: ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService: RunService = game:GetService("RunService")
 local UserInputService: UserInputService = game:GetService("UserInputService")
@@ -172,6 +173,10 @@ local function placeActiveModel(): ()
 	local placementTarget: PVInstance = placedInstance :: any
 	placedInstance.Parent = Workspace
 	placementTarget:PivotTo(preview.ghost:GetPivot())
+
+	if placedInstance:IsA("Model") then
+		CollectionService:AddTag(placedInstance, TOOLS.CREATE.CREATED_MODEL_TAG)
+	end
 end
 
 local function updateActiveCFrame(): ()

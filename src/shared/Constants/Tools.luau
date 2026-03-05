@@ -16,11 +16,23 @@ export type ToolConstants = {
 
 export type CreateToolConstants = ToolConstants & {
 	BLOCK_ATTRIBUTE_NAME: string,
+	CREATED_MODEL_TAG: string,
 	PREVIEW_DISTANCE_STUDS: number,
 }
 
+export type HighlightDepthMode = "AlwaysOnTop" | "Occluded"
+
+export type DeleteToolConstants = ToolConstants & {
+	MAX_DISTANCE_STUDS: number,
+	HIGHLIGHT_FILL_COLOR: Color3,
+	HIGHLIGHT_FILL_TRANSPARENCY: number,
+	HIGHLIGHT_OUTLINE_COLOR: Color3,
+	HIGHLIGHT_OUTLINE_TRANSPARENCY: number,
+	HIGHLIGHT_DEPTH_MODE: HighlightDepthMode,
+}
+
 export type ToolsConstants = {
-	DELETE: ToolConstants,
+	DELETE: DeleteToolConstants,
 	CREATE: CreateToolConstants,
 }
 
@@ -30,6 +42,12 @@ local TOOLS: ToolsConstants = {
 		TYPE = "delete",
 		TOOL_TYPE_ATTRIBUTE_NAME = "ToolType",
 		TOOL = toolsFolder:WaitForChild("Delete"),
+		MAX_DISTANCE_STUDS = 12,
+		HIGHLIGHT_FILL_COLOR = Color3.fromRGB(255, 85, 85),
+		HIGHLIGHT_FILL_TRANSPARENCY = 0.7,
+		HIGHLIGHT_OUTLINE_COLOR = Color3.fromRGB(255, 0, 0),
+		HIGHLIGHT_OUTLINE_TRANSPARENCY = 0,
+		HIGHLIGHT_DEPTH_MODE = "AlwaysOnTop",
 	},
 	CREATE = {
 		NAME = "Create",
@@ -37,6 +55,7 @@ local TOOLS: ToolsConstants = {
 		TOOL_TYPE_ATTRIBUTE_NAME = "ToolType",
 		TOOL = toolsFolder:WaitForChild("Create"),
 		BLOCK_ATTRIBUTE_NAME = "BlockType",
+		CREATED_MODEL_TAG = "BuiltModel",
 		PREVIEW_DISTANCE_STUDS = 8,
 	},
 }
