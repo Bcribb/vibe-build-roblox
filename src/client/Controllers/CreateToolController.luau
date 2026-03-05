@@ -201,19 +201,17 @@ end
 function CreateToolController.createForTool(tool: Tool): ()
 	destroyActive()
 
-	local blockDefinitionNumber: number?, blockDefinitionNumberError: string? =
-		CreateToolHelper.tryGetBlockDefinitionNumberFromTool(tool)
+	local blockDefinitionNumber: number? =
+		CreateToolHelper.getBlockDefinitionNumber(tool)
 
 	if blockDefinitionNumber == nil then
-		warn(blockDefinitionNumberError)
 		return
 	end
 
-	local ghostInstance: Model | BasePart?, ghostInstanceError: string? =
-		CreateToolHelper.tryCreateBlockInstance(blockDefinitionNumber)
+	local ghostInstance: Model | BasePart? =
+		CreateToolHelper.createBlockInstance(blockDefinitionNumber)
 
 	if ghostInstance == nil then
-		warn(ghostInstanceError)
 		return
 	end
 

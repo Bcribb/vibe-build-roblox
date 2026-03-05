@@ -7,7 +7,7 @@ local blocksFolder: Instance = assetsFolder:WaitForChild("Blocks")
 
 export type BlockDefinition = {
 	NAME: string,
-	MODEL: Instance?,
+	MODEL: Instance,
 }
 
 export type BlocksConstants = {

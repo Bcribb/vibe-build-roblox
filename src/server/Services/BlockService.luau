@@ -70,11 +70,11 @@ local function validateDestroyModel(_player: Player, args: { any }): (boolean, .
 end
 
 function BlockService.spawnBlock(blockDefinitionNumber: number, position: Vector3): PlaceableBlockInstance?
-	local blockInstance: PlaceableBlockInstance?, blockInstanceError: string? =
-		CreateToolHelper.tryCreateBlockInstance(blockDefinitionNumber)
+	local blockInstance: PlaceableBlockInstance? =
+		CreateToolHelper.createBlockInstance(blockDefinitionNumber)
 
 	if blockInstance == nil then
-		warn(blockInstanceError)
+		warn("[BlockService] Failed to create block instance for definition:", blockDefinitionNumber)
 		return nil
 	end
 
