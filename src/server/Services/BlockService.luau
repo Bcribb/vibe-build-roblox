@@ -8,10 +8,13 @@ local packagesFolder: Instance = ReplicatedStorage:WaitForChild("Packages")
 local remotesFolder: Folder = ReplicatedStorage:WaitForChild("Remotes") :: Folder
 local sharedFolder: Instance = ReplicatedStorage:WaitForChild("Shared")
 local constantsFolder: Instance = sharedFolder:WaitForChild("Constants")
+local helpersFolder: Instance = sharedFolder:WaitForChild("Helpers")
 
 local Comm: any = require(packagesFolder:WaitForChild("Comm"))
-local BLOCKS: any = require(constantsFolder:WaitForChild("Blocks"))
 local TOOLS: any = require(constantsFolder:WaitForChild("Tools"))
+local CreateToolHelper: any = require(helpersFolder:WaitForChild("CreateToolHelper"))
+
+type PlaceableBlockInstance = Model | BasePart
 
 local BlockService: any = {}
 local blockServerComm: any = nil
@@ -66,18 +69,28 @@ local function validateDestroyModel(_player: Player, args: { any }): (boolean, .
 	return true
 end
 
-function BlockService.spawnBlock(blockDefinitionNumber: number, position: Vector3): Model
-	local blockDefinition: BLOCKS.BlockDefinition = BLOCKS[blockDefinitionNumber]
-	local blockModelTemplate: Model = blockDefinition.MODEL :: Model
-	local blockModel: Model = blockModelTemplate:Clone()
+function BlockService.spawnBlock(blockDefinitionNumber: number, position: Vector3): PlaceableBlockInstance?
+	local blockInstance: PlaceableBlockInstance?, blockInstanceError: string? =
+		CreateToolHelper.tryCreateBlockInstance(blockDefinitionNumber)
+
+	if blockInstance == nil then
+		warn(blockInstanceError)
+		return nil
+	end
+
 	local blocksFolder: Folder = getBlocksFolder()
 
-	ensurePrimaryPart(blockModel)
-	blockModel.Parent = blocksFolder
-	blockModel:PivotTo(CFrame.new(position))
-	CollectionService:AddTag(blockModel, TOOLS.CREATE.CREATED_MODEL_TAG)
+	if blockInstance:IsA("Model") then
+		ensurePrimaryPart(blockInstance)
+	end
 
-	return blockModel
+	blockInstance.Parent = blocksFolder
+	local placeableInstance: PVInstance = blockInstance
+
+	placeableInstance:PivotTo(CFrame.new(position))
+	CollectionService:AddTag(blockInstance, TOOLS.CREATE.CREATED_MODEL_TAG)
+
+	return blockInstance
 end
 
 function BlockService.destroyBlock(model: Model): ()
@@ -91,9 +104,12 @@ function BlockService.init(): ()
 
 	blockServerComm = Comm.ServerComm.new(remotesFolder, "BlockService")
 
-	blockServerComm:BindFunction("SpawnBlock", function(_player: Player, blockDefinitionNumber: number, position: Vector3): Model
-		return BlockService.spawnBlock(blockDefinitionNumber, position)
-	end)
+	blockServerComm:BindFunction(
+		"SpawnBlock",
+		function(_player: Player, blockDefinitionNumber: number, position: Vector3): PlaceableBlockInstance?
+			return BlockService.spawnBlock(blockDefinitionNumber, position)
+		end
+	)
 	blockServerComm:BindFunction("DestroyBlock", function(_player: Player, model: Model): ()
 		BlockService.destroyBlock(model)
 	end, { validateDestroyModel })

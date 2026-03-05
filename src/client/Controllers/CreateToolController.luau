@@ -10,10 +10,11 @@ local packagesFolder: Instance = ReplicatedStorage:WaitForChild("Packages")
 local remotesFolder: Folder = ReplicatedStorage:WaitForChild("Remotes") :: Folder
 local sharedFolder: Instance = ReplicatedStorage:WaitForChild("Shared")
 local constantsFolder: Instance = sharedFolder:WaitForChild("Constants")
+local helpersFolder: Instance = sharedFolder:WaitForChild("Helpers")
 
-local BLOCKS: any = require(constantsFolder:WaitForChild("Blocks"))
 local TOOLS: any = require(constantsFolder:WaitForChild("Tools"))
 local Comm: any = require(packagesFolder:WaitForChild("Comm"))
+local CreateToolHelper: any = require(helpersFolder:WaitForChild("CreateToolHelper"))
 
 local blockClientComm: any = Comm.ClientComm.new(remotesFolder, false, "BlockService")
 local spawnBlockRemote: any = blockClientComm:GetFunction("SpawnBlock")
@@ -200,29 +201,20 @@ end
 function CreateToolController.createForTool(tool: Tool): ()
 	destroyActive()
 
-	local blockKey: number? = tool:GetAttribute(TOOLS.CREATE.BLOCK_ATTRIBUTE_NAME) :: number?
+	local blockDefinitionNumber: number?, blockDefinitionNumberError: string? =
+		CreateToolHelper.tryGetBlockDefinitionNumberFromTool(tool)
 
-	if blockKey == nil then
-		error("[CreateToolController] Missing block attribute on create tool")
+	if blockDefinitionNumber == nil then
+		warn(blockDefinitionNumberError)
+		return
 	end
 
-	local blockDefinition: any = BLOCKS[blockKey]
+	local ghostInstance: Model | BasePart?, ghostInstanceError: string? =
+		CreateToolHelper.tryCreateBlockInstance(blockDefinitionNumber)
 
-	if blockDefinition == nil then
-		error("[CreateToolController] Missing block definition for block key")
-	end
-
-	local sourceModel: Instance? = blockDefinition.MODEL
-
-	if sourceModel == nil then
-		error("[CreateToolController] Block definition is missing MODEL")
-	end
-
-	local ghostInstance: Instance = sourceModel:Clone()
-
-	if not ghostInstance:IsA("Model") and not ghostInstance:IsA("BasePart") then
-		ghostInstance:Destroy()
-		error("[CreateToolController] Block model clone must be Model or BasePart")
+	if ghostInstance == nil then
+		warn(ghostInstanceError)
+		return
 	end
 
 	setGhostVisuals(ghostInstance)
@@ -241,7 +233,7 @@ function CreateToolController.createForTool(tool: Tool): ()
 	activePreview = {
 		tool = tool,
 		ghost = ghost,
-		blockDefinitionNumber = blockKey,
+		blockDefinitionNumber = blockDefinitionNumber,
 		rotation = rotationOnly,
 		renderConnection = renderConnection,
 		activatedConnection = activatedConnection,
