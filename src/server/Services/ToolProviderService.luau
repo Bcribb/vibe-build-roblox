@@ -19,7 +19,6 @@ local overlapParams: OverlapParams = OverlapParams.new()
 local heartbeatConnection: RBXScriptConnection? = nil
 local elapsedSeconds: number = 0
 local pollIntervalSeconds: number = 0
-local EMPTY_TOOL_NAME: string = "EmptyTool"
 local randomGenerator: Random = Random.new()
 
 local function hasCreateToolInContainer(container: Instance): boolean

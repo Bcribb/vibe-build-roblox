@@ -21,12 +21,14 @@ local function onToolEquipped(tool: Tool): ()
 	if toolType == TOOLS.CREATE.TYPE then
 		DeleteToolController.destroyActive()
 		CreateToolController.createForTool(tool)
+
 		return
 	end
 
 	if toolType == TOOLS.DELETE.TYPE then
 		CreateToolController.destroyActive()
 		DeleteToolController.createForTool(tool)
+
 		return
 	end
 
@@ -39,11 +41,13 @@ local function onToolUnequipped(tool: Tool): ()
 
 	if toolType == TOOLS.CREATE.TYPE then
 		CreateToolController.clearForTool(tool)
+
 		return
 	end
 
 	if toolType == TOOLS.DELETE.TYPE then
 		DeleteToolController.clearForTool(tool)
+
 		return
 	end
 
@@ -51,33 +55,31 @@ local function onToolUnequipped(tool: Tool): ()
 	DeleteToolController.destroyActive()
 end
 
-local function watchCharacter(character: Model): ()
-	for _, child: Instance in character:GetChildren() do
-		if not child:IsA("Tool") then
-			continue
-		end
-
-		local tool: Tool = child
-		onToolEquipped(tool)
+local function onChildAdded(child: Instance): ()
+	if not child:IsA("Tool") then
+		return
 	end
 
-	character.ChildAdded:Connect(function(child: Instance): ()
-		if not child:IsA("Tool") then
-			return
-		end
+	local tool: Tool = child
+	onToolEquipped(tool)
+end
 
-		local tool: Tool = child
-		onToolEquipped(tool)
-	end)
+local function onChildRemoved(child: Instance): ()
+	if not child:IsA("Tool") then
+		return
+	end
 
-	character.ChildRemoved:Connect(function(child: Instance): ()
-		if not child:IsA("Tool") then
-			return
-		end
+	local tool: Tool = child
+	onToolUnequipped(tool)
+end
 
-		local tool: Tool = child
-		onToolUnequipped(tool)
-	end)
+local function watchCharacter(character: Model): ()
+	for _, child: Instance in character:GetChildren() do
+		onChildAdded(child)
+	end
+
+	character.ChildAdded:Connect(onChildAdded)
+	character.ChildRemoved:Connect(onChildRemoved)
 end
 
 function ToolController.init(): ()
