@@ -1,0 +1,66 @@
+--!strict
+
+local Players: Players = game:GetService("Players")
+local ReplicatedStorage: ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local sharedFolder: Instance = ReplicatedStorage:WaitForChild("Shared")
+local constantsFolder: Instance = sharedFolder:WaitForChild("Constants")
+
+local TOOLS: any = require(constantsFolder:WaitForChild("Tools"))
+
+local PlayerService: any = {}
+
+local function hasDeleteToolInBackpack(backpack: Instance): boolean
+	for _, child: Instance in backpack:GetChildren() do
+		if not child:IsA("Tool") then
+			continue
+		end
+
+		local tool: Tool = child
+		local toolType: string? = tool:GetAttribute(TOOLS.DELETE.TOOL_TYPE_ATTRIBUTE_NAME) :: string?
+
+		if toolType == TOOLS.DELETE.TYPE then
+			return true
+		end
+	end
+
+	return false
+end
+
+local function grantDeleteTool(player: Player): ()
+	local backpack: Instance = player:WaitForChild("Backpack")
+
+	if hasDeleteToolInBackpack(backpack) then
+		return
+	end
+
+	local toolInstance: Tool = TOOLS.DELETE.TOOL:Clone()
+	toolInstance.Name = TOOLS.DELETE.NAME
+	toolInstance:SetAttribute(TOOLS.DELETE.TOOL_TYPE_ATTRIBUTE_NAME, TOOLS.DELETE.TYPE)
+	toolInstance.Parent = backpack
+end
+
+local function watchPlayer(player: Player): ()
+	player.CharacterAdded:Connect(function(_character: Model): ()
+		grantDeleteTool(player)
+	end)
+
+	if player.Character ~= nil then
+		grantDeleteTool(player)
+	end
+end
+
+function PlayerService.init(): ()
+end
+
+function PlayerService.start(): ()
+	Players.PlayerAdded:Connect(function(player: Player): ()
+		watchPlayer(player)
+	end)
+
+	for _, player: Player in Players:GetPlayers() do
+		watchPlayer(player)
+	end
+end
+
+return PlayerService

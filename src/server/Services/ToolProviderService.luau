@@ -22,9 +22,16 @@ local pollIntervalSeconds: number = 0
 local EMPTY_TOOL_NAME: string = "EmptyTool"
 local randomGenerator: Random = Random.new()
 
-local function hasToolInContainer(container: Instance): boolean
+local function hasCreateToolInContainer(container: Instance): boolean
 	for _, child: Instance in container:GetChildren() do
-		if child:IsA("Tool") then
+		if not child:IsA("Tool") then
+			continue
+		end
+
+		local tool: Tool = child
+		local toolType: string? = tool:GetAttribute(TOOLS.CREATE.TOOL_TYPE_ATTRIBUTE_NAME) :: string?
+
+		if toolType == TOOLS.CREATE.TYPE then
 			return true
 		end
 	end
@@ -32,16 +39,16 @@ local function hasToolInContainer(container: Instance): boolean
 	return false
 end
 
-local function playerHasAnyTool(player: Player): boolean
+local function playerHasCreateTool(player: Player): boolean
 	local backpack: Instance? = player:FindFirstChildOfClass("Backpack")
 
-	if backpack ~= nil and hasToolInContainer(backpack) then
+	if backpack ~= nil and hasCreateToolInContainer(backpack) then
 		return true
 	end
 
 	local character: Model? = player.Character
 
-	if character ~= nil and hasToolInContainer(character) then
+	if character ~= nil and hasCreateToolInContainer(character) then
 		return true
 	end
 
@@ -104,7 +111,7 @@ local function pollProviderTouches(): ()
 
 			processedPlayers[player] = true
 
-			if playerHasAnyTool(player) then
+			if playerHasCreateTool(player) then
 				continue
 			end
 
