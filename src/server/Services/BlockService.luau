@@ -2,6 +2,7 @@
 
 local CollectionService: CollectionService = game:GetService("CollectionService")
 local ReplicatedStorage: ReplicatedStorage = game:GetService("ReplicatedStorage")
+local ServerStorage: ServerStorage = game:GetService("ServerStorage")
 local Workspace: Workspace = game:GetService("Workspace")
 
 local packagesFolder: Instance = ReplicatedStorage:WaitForChild("Packages")
@@ -9,10 +10,14 @@ local remotesFolder: Folder = ReplicatedStorage:WaitForChild("Remotes") :: Folde
 local sharedFolder: Instance = ReplicatedStorage:WaitForChild("Shared")
 local constantsFolder: Instance = sharedFolder:WaitForChild("Constants")
 local helpersFolder: Instance = sharedFolder:WaitForChild("Helpers")
+local serverFolder: Instance = ServerStorage:WaitForChild("Server")
+local servicesFolder: Instance = serverFolder:WaitForChild("Services")
 
 local Comm: any = require(packagesFolder:WaitForChild("Comm"))
 local TOOLS: any = require(constantsFolder:WaitForChild("Tools"))
 local BlockHelper: any = require(helpersFolder:WaitForChild("BlockHelper"))
+
+local ToolProviderService: any = require(servicesFolder:WaitForChild("ToolProviderService"))
 
 type PlaceableBlockInstance = Model | BasePart
 
@@ -97,8 +102,12 @@ function BlockService.init(): ()
 
 	blockServerComm:BindFunction(
 		"SpawnBlock",
-		function(_player: Player, blockDefinitionNumber: number, position: Vector3): PlaceableBlockInstance?
-			return BlockService.spawnBlock(blockDefinitionNumber, position)
+		function(player: Player, blockDefinitionNumber: number, position: Vector3): PlaceableBlockInstance?
+			BlockService.spawnBlock(blockDefinitionNumber, position)
+
+			ToolProviderService.consumeCreateTool(player)
+
+			return true
 		end
 	)
 	blockServerComm:BindFunction("DestroyBlock", function(_player: Player, model: Model): ()

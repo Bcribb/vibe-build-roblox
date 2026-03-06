@@ -54,6 +54,27 @@ local function playerHasCreateTool(player: Player): boolean
 	return false
 end
 
+local function destroyCreateToolsInContainer(container: Instance?): ()
+	if container == nil then
+		return
+	end
+
+	for _, child: Instance in container:GetChildren() do
+		if not child:IsA("Tool") then
+			continue
+		end
+
+		local tool: Tool = child
+		local toolType: string? = tool:GetAttribute(TOOLS.CREATE.TOOL_TYPE_ATTRIBUTE_NAME) :: string?
+
+		if toolType ~= TOOLS.CREATE.TYPE then
+			continue
+		end
+
+		tool:Destroy()
+	end
+end
+
 local function getRandomBlockKey(): number
 	local randomIndex: number = randomGenerator:NextInteger(1, #BLOCKS)
 
@@ -144,6 +165,14 @@ end
 function ToolProviderService.init(): ()
 	overlapParams.FilterType = Enum.RaycastFilterType.Exclude
 	overlapParams.FilterDescendantsInstances = {}
+end
+
+function ToolProviderService.consumeCreateTool(player: Player): ()
+	local backpack: Instance? = player:FindFirstChildOfClass("Backpack")
+	local character: Model? = player.Character
+
+	destroyCreateToolsInContainer(backpack)
+	destroyCreateToolsInContainer(character)
 end
 
 function ToolProviderService.start(): ()
