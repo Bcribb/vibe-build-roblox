@@ -40,6 +40,7 @@ local function onRenderStepped(): ()
 		if model and BlockHelper.validateDelete(Players.LocalPlayer, model) then
 			targetModel = model
 			deleteHighlight:setTargetModel(model)
+			deleteHighlight:setEnabled(true)
 
 			return
 		end
