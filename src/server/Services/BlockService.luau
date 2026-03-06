@@ -19,18 +19,18 @@ type PlaceableBlockInstance = Model | BasePart
 local BlockService: any = {}
 local blockServerComm: any = nil
 
-local function getBlocksFolder(): Folder
-	local blocksFolder: Instance? = Workspace:FindFirstChild("Blocks")
+local function ensureBlocksFolder(): Folder
+	local existingBlocksFolder: Instance? = Workspace:FindFirstChild("Blocks")
 
-	if blocksFolder ~= nil then
-		return blocksFolder :: Folder
+	if existingBlocksFolder ~= nil then
+		return existingBlocksFolder :: Folder
 	end
 
-	local newBlocksFolder: Folder = Instance.new("Folder")
-	newBlocksFolder.Name = "Blocks"
-	newBlocksFolder.Parent = Workspace
+	local blocksFolder: Folder = Instance.new("Folder")
+	blocksFolder.Name = "Blocks"
+	blocksFolder.Parent = Workspace
 
-	return newBlocksFolder
+	return blocksFolder
 end
 
 local function ensurePrimaryPart(model: Model): ()
@@ -60,7 +60,7 @@ local function validateDestroyModel(player: Player, args: { any }): (boolean, ..
 	end
 
 	local targetModel: Model = modelArgument
-	local blocksFolder: Folder = getBlocksFolder()
+	local blocksFolder: Folder = BlockHelper.getBlocksFolder()
 
 	if not targetModel:IsDescendantOf(blocksFolder) then
 		return false
@@ -70,7 +70,7 @@ local function validateDestroyModel(player: Player, args: { any }): (boolean, ..
 end
 
 function BlockService.spawnBlock(blockDefinitionNumber: number, position: Vector3): PlaceableBlockInstance?
-	local blocksFolder: Folder = getBlocksFolder()
+	local blocksFolder: Folder = BlockHelper.getBlocksFolder()
 	local blockInstance: PlaceableBlockInstance? = BlockHelper.createBlockInstance(blockDefinitionNumber)
 	ensurePrimaryPart(blockInstance)
 
@@ -92,6 +92,7 @@ function BlockService.init(): ()
 		return
 	end
 
+	ensureBlocksFolder()
 	blockServerComm = Comm.ServerComm.new(remotesFolder, "BlockService")
 
 	blockServerComm:BindFunction(

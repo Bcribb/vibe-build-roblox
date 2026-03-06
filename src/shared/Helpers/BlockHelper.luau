@@ -2,15 +2,15 @@
 
 local ReplicatedStorage: ReplicatedStorage = game:GetService("ReplicatedStorage")
 local CollectionService: CollectionService = game:GetService("CollectionService")
+local Workspace: Workspace = game:GetService("Workspace")
 
 local sharedFolder: Instance = ReplicatedStorage:WaitForChild("Shared")
 local constantsFolder: Instance = sharedFolder:WaitForChild("Constants")
 local helpersFolder: Instance = sharedFolder:WaitForChild("Helpers")
 
-local PlayerHelper: any = require(helpersFolder:WaitForChild("PlayerHelper"))
-
 local BLOCKS: any = require(constantsFolder:WaitForChild("Blocks"))
 local TOOLS: any = require(constantsFolder:WaitForChild("Tools"))
+local PlayerHelper: any = require(helpersFolder:WaitForChild("PlayerHelper"))
 
 type BlockDefinition = BLOCKS.BlockDefinition
 type CloneableBlockInstance = Model | BasePart
@@ -27,6 +27,12 @@ local function getBoundsForPlacement(target: PVInstance): (CFrame, Vector3)
 	local targetModel: Model = target :: Model
 
 	return targetModel:GetBoundingBox()
+end
+
+function BlockHelper.getBlocksFolder(): Folder
+	local blocksFolder: Instance = Workspace:WaitForChild("Blocks")
+
+	return blocksFolder :: Folder
 end
 
 function BlockHelper.createBlockInstance(blockDefinitionNumber: number): CloneableBlockInstance?
