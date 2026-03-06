@@ -19,6 +19,7 @@ local TOOLS: any = require(constantsFolder:WaitForChild("Tools"))
 local RaycastHelper: any = require(helpersFolder:WaitForChild("RaycastHelper"))
 local BlockHelper: any = require(helpersFolder:WaitForChild("BlockHelper"))
 local PlayerHelper: any = require(helpersFolder:WaitForChild("PlayerHelper"))
+local GridHelper: any = require(helpersFolder:WaitForChild("GridHelper"))
 
 local blockClientComm: any = Comm.ClientComm.new(remotesFolder, true, "BlockService")
 local spawnBlockRemote: any = blockClientComm:GetFunction("SpawnBlock")
@@ -76,6 +77,7 @@ local function onRenderStepped(): ()
 	end
 
 	position = BlockHelper.clampPositionFromOrigin(hrp.Position, position, TOOLS.CREATE.PREVIEW_DISTANCE_STUDS)
+	position = GridHelper.alignPositionToGrid(position)
 
 	blockGhost:setPosition(position)
 end

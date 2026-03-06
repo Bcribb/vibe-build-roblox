@@ -37,7 +37,10 @@
       }
     },
     "Workspace": {
-      "$path": "Assets/World.rbxmx"
+      "World": {
+        "$className": "Folder",
+        "$path": "Assets/World.rbxmx"
+      }
     },
     "Lighting": {
       "$properties": {
