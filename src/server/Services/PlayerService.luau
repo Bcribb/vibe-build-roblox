@@ -6,6 +6,7 @@ local ReplicatedStorage: ReplicatedStorage = game:GetService("ReplicatedStorage"
 local sharedFolder: Instance = ReplicatedStorage:WaitForChild("Shared")
 local constantsFolder: Instance = sharedFolder:WaitForChild("Constants")
 
+local COLLISION_GROUP_CONSTANTS: any = require(constantsFolder:WaitForChild("CollisionGroupConstants"))
 local TOOLS: any = require(constantsFolder:WaitForChild("Tools"))
 
 local PlayerService: any = {}
@@ -40,9 +41,20 @@ local function grantDeleteTool(player: Player): ()
 	toolInstance.Parent = backpack
 end
 
+local function setCollisionGroup(character: Model): ()
+	for _, descendant: Instance in character:GetDescendants() do
+		if not descendant:IsA("BasePart") then
+			continue
+		end
+
+		descendant.CollisionGroup = COLLISION_GROUP_CONSTANTS.PLAYERS_COLLISION_GROUP
+	end
+end
+
 local function watchPlayer(player: Player): ()
-	player.CharacterAdded:Connect(function(_character: Model): ()
+	player.CharacterAdded:Connect(function(character: Model): ()
 		grantDeleteTool(player)
+		setCollisionGroup(character)
 	end)
 
 	if player.Character ~= nil then
