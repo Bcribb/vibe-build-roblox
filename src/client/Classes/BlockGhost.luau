@@ -2,19 +2,12 @@
 
 local ReplicatedStorage: ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-local remotesFolder: Folder = ReplicatedStorage:WaitForChild("Remotes") :: Folder
-local packagesFolder: Instance = ReplicatedStorage:WaitForChild("Packages")
 local sharedFolder: Instance = ReplicatedStorage:WaitForChild("Shared")
 local constantsFolder: Instance = sharedFolder:WaitForChild("Constants")
-
-local Comm: any = require(packagesFolder:WaitForChild("Comm"))
 
 local BLOCKS: any = require(constantsFolder:WaitForChild("Blocks"))
 
 local BlockHelper: any = require(sharedFolder:WaitForChild("Helpers"):WaitForChild("BlockHelper"))
-
-local blockClientComm: any = Comm.ClientComm.new(remotesFolder, false, "BlockService")
-local spawnBlockRemote: any = blockClientComm:GetFunction("SpawnBlock")
 
 local BlockGhost: any = {}
 BlockGhost.__index = BlockGhost
@@ -61,10 +54,6 @@ end
 
 function BlockGhost:setPosition(position: Vector3): ()
 	self.model:PivotTo(CFrame.new(position))
-end
-
-function BlockGhost:commit(): ()
-	spawnBlockRemote(self.blockDefinitionNumber, self.model:FindFirstChildOfClass("Part").CFrame.Position)
 end
 
 return BlockGhost

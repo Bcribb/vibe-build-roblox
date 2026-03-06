@@ -4,17 +4,24 @@ local ReplicatedStorage: ReplicatedStorage = game:GetService("ReplicatedStorage"
 local RunService: RunService = game:GetService("RunService")
 local Players: Players = game:GetService("Players")
 
+local remotesFolder: Folder = ReplicatedStorage:WaitForChild("Remotes") :: Folder
+local packagesFolder: Instance = ReplicatedStorage:WaitForChild("Packages")
 local clientFolder: Instance = ReplicatedStorage:WaitForChild("Client")
 local classesFolder: Instance = clientFolder:WaitForChild("Classes")
 local sharedFolder: Instance = ReplicatedStorage:WaitForChild("Shared")
 local constantsFolder: Instance = sharedFolder:WaitForChild("Constants")
 local helpersFolder: Instance = sharedFolder:WaitForChild("Helpers")
 
+local Comm: any = require(packagesFolder:WaitForChild("Comm"))
+
 local TOOLS: any = require(constantsFolder:WaitForChild("Tools"))
 
 local RaycastHelper: any = require(helpersFolder:WaitForChild("RaycastHelper"))
 local BlockHelper: any = require(helpersFolder:WaitForChild("BlockHelper"))
 local PlayerHelper: any = require(helpersFolder:WaitForChild("PlayerHelper"))
+
+local blockClientComm: any = Comm.ClientComm.new(remotesFolder, false, "BlockService")
+local spawnBlockRemote: any = blockClientComm:GetFunction("SpawnBlock")
 
 local BlockGhost: any = require(classesFolder:WaitForChild("BlockGhost"))
 
@@ -71,7 +78,9 @@ end
 
 local function onToolActivated(): ()
 	if blockGhost then
-		blockGhost:commit()
+		local position: Vector3 = blockGhost.model:FindFirstChildOfClass("Part").CFrame.Position
+		
+		spawnBlockRemote(blockGhost:getBlockDefinitionNumber(), position)
 	end
 end
 
