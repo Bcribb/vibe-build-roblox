@@ -16,78 +16,7 @@
         "$path": "src/shared"
       },
       "Assets": {
-        "$className": "Folder",
-        "Blocks": {
-          "$className": "Folder",
-          "Cube": {
-            "$className": "Model",
-            "CubePart": {
-              "$className": "Part",
-              "$properties": {
-                "Anchored": true,
-                "Size": [
-                  4,
-                  4,
-                  4
-                ]
-              }
-            }
-          },
-          "Wedge": {
-            "$className": "Model",
-            "WedgePart": {
-              "$className": "Part",
-              "$properties": {
-                "Anchored": true,
-                "Shape": "Wedge",
-                "Size": [
-                  4,
-                  4,
-                  4
-                ]
-              }
-            }
-          },
-          "Sphere": {
-            "$className": "Model",
-            "SpherePart": {
-              "$className": "Part",
-              "$properties": {
-                "Anchored": true,
-                "Shape": "Ball",
-                "Size": [
-                  4,
-                  4,
-                  4
-                ]
-              }
-            }
-          }
-        },
-        "Tools": {
-          "$className": "Folder",
-          "Delete": {
-            "$className": "Tool",
-            "$attributes": {
-              "ToolType": "delete"
-            },
-            "$properties": {
-              "RequiresHandle": false,
-              "CanBeDropped": false
-            }
-          },
-          "Create": {
-            "$className": "Tool",
-            "$attributes": {
-              "BlockType": 1,
-              "ToolType": "create"
-            },
-            "$properties": {
-              "RequiresHandle": false,
-              "CanBeDropped": false
-            }
-          }
-        }
+        "$path": "Assets/Assets.rbxmx"
       }
     },
     "ServerScriptService": {
@@ -108,67 +37,7 @@
       }
     },
     "Workspace": {
-      "Baseplate": {
-        "$className": "Part",
-        "$properties": {
-          "Anchored": true,
-          "Color": [
-            0.38823,
-            0.37254,
-            0.38823
-          ],
-          "Locked": true,
-          "Position": [
-            0,
-            -10,
-            0
-          ],
-          "Size": [
-            32,
-            4,
-            32
-          ]
-        }
-      },
-      "SpawnPoint": {
-        "$className": "SpawnLocation",
-        "$properties": {
-          "Anchored": true,
-          "CanCollide": true,
-          "Neutral": true,
-          "Position": [
-            12,
-            -7.5,
-            12
-          ],
-          "Size": [
-            6,
-            1,
-            6
-          ]
-        }
-      },
-      "CenterBox": {
-        "$className": "Part",
-        "$properties": {
-          "Anchored": true,
-          "CanCollide": false,
-          "Position": [
-            0,
-            -4,
-            0
-          ],
-          "Size": [
-            8,
-            8,
-            8
-          ],
-          "Tags": [
-            "ToolProvider"
-          ],
-          "Transparency": 0.5
-        }
-      }
+      "$path": "Assets/World.rbxmx"
     },
     "Lighting": {
       "$properties": {
