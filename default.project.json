@@ -124,9 +124,27 @@
             0
           ],
           "Size": [
-            512,
-            20,
-            512
+            32,
+            4,
+            32
+          ]
+        }
+      },
+      "SpawnPoint": {
+        "$className": "SpawnLocation",
+        "$properties": {
+          "Anchored": true,
+          "CanCollide": true,
+          "Neutral": true,
+          "Position": [
+            12,
+            -7.5,
+            12
+          ],
+          "Size": [
+            6,
+            1,
+            6
           ]
         }
       },
@@ -137,7 +155,7 @@
           "CanCollide": false,
           "Position": [
             0,
-            4,
+            -4,
             0
           ],
           "Size": [
