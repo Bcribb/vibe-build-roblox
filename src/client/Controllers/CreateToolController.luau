@@ -16,8 +16,7 @@ local Comm: any = require(packagesFolder:WaitForChild("Comm"))
 
 local TOOLS: any = require(constantsFolder:WaitForChild("Tools"))
 
-local RaycastHelper: any = require(helpersFolder:WaitForChild("RaycastHelper"))
-local BlockHelper: any = require(helpersFolder:WaitForChild("BlockHelper"))
+local VectorHelper: any = require(helpersFolder:WaitForChild("VectorHelper"))
 local PlayerHelper: any = require(helpersFolder:WaitForChild("PlayerHelper"))
 local GridHelper: any = require(helpersFolder:WaitForChild("GridHelper"))
 
@@ -47,6 +46,24 @@ local function getOrCreateBlockGhost(blockDefinitionNumber: number): any
 	return BlockGhost.new(blockDefinitionNumber)
 end
 
+local function getPlacementPosition(): Vector3
+	local cameraCFrame : CFrame = workspace.CurrentCamera.CFrame
+	local cameraLookVector : Vector3 = cameraCFrame.LookVector
+	local cameraRightVector : Vector3 = cameraCFrame.RightVector
+	local cameraFlattenedLookVector : Vector3 = VectorHelper.flattenedUnit(cameraLookVector)
+	local angle : number = cameraFlattenedLookVector:Angle(cameraLookVector, cameraRightVector) + math.pi / 16
+
+	local rotation : number = math.sign(angle) * (math.pi / 2) * ((angle / (math.pi / 2)) ^ 2)
+	
+	local direction : Vector3 = VectorHelper.rotateAboutAxis(cameraFlattenedLookVector, cameraRightVector, rotation)
+	local offset : Vector3 = direction * TOOLS.CREATE.PREVIEW_DISTANCE_STUDS
+
+	local hrp : BasePart = PlayerHelper.getHumanoidRootPart(Players.LocalPlayer) :: BasePart
+	local placementPosition : Vector3 = GridHelper.alignPositionToGrid(hrp.CFrame.Position + offset)
+
+	return placementPosition
+end
+
 local function onRenderStepped(): ()
 	if not enabled or isAwaitingSpawn or not PlayerHelper.isPlayerAlive(Players.LocalPlayer) then
 		if blockGhost then
@@ -58,28 +75,7 @@ local function onRenderStepped(): ()
 
 	blockGhost = getOrCreateBlockGhost(blockDefinitionNumber)
 	blockGhost:setVisible(true)
-
-	local hrp : BasePart? = PlayerHelper.getHumanoidRootPart(Players.LocalPlayer)
-
-	if not hrp then
-		blockGhost:setVisible(false)
-		return
-	end
-
-	blockGhost:setVisible(true)
-
-	local raycastResult: RaycastResult? = RaycastHelper.raycastFromMouse({ Players.LocalPlayer.Character })
-	local position: Vector3 = (Players.LocalPlayer:GetMouse().Hit.Position)
-
-	if raycastResult then
-		position = raycastResult.Position
-		position = BlockHelper.applyNormalOffset(blockGhost.model, position, raycastResult.Normal)
-	end
-
-	position = BlockHelper.clampPositionFromOrigin(hrp.Position, position, TOOLS.CREATE.PREVIEW_DISTANCE_STUDS)
-	position = GridHelper.alignPositionToGrid(position)
-
-	blockGhost:setPosition(position)
+	blockGhost:setPosition(getPlacementPosition())
 end
 
 local function onToolActivated(): ()
