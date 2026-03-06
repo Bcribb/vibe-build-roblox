@@ -48,7 +48,7 @@ local function ensurePrimaryPart(model: Model): ()
 	end
 end
 
-local function validateDestroyModel(_player: Player, args: { any }): (boolean, ...any)
+local function validateDestroyModel(player: Player, args: { any }): (boolean, ...any)
 	local modelArgument: any = args[1]
 
 	if typeof(modelArgument) ~= "Instance" then
@@ -66,7 +66,7 @@ local function validateDestroyModel(_player: Player, args: { any }): (boolean, .
 		return false
 	end
 
-	return true
+	return BlockHelper.validateDelete(player, targetModel)
 end
 
 function BlockService.spawnBlock(blockDefinitionNumber: number, position: Vector3): PlaceableBlockInstance?

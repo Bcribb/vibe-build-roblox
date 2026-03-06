@@ -1,9 +1,13 @@
 --!strict
 
 local ReplicatedStorage: ReplicatedStorage = game:GetService("ReplicatedStorage")
+local CollectionService: CollectionService = game:GetService("CollectionService")
 
 local sharedFolder: Instance = ReplicatedStorage:WaitForChild("Shared")
 local constantsFolder: Instance = sharedFolder:WaitForChild("Constants")
+local helpersFolder: Instance = sharedFolder:WaitForChild("Helpers")
+
+local PlayerHelper: any = require(helpersFolder:WaitForChild("PlayerHelper"))
 
 local BLOCKS: any = require(constantsFolder:WaitForChild("Blocks"))
 local TOOLS: any = require(constantsFolder:WaitForChild("Tools"))
@@ -88,6 +92,28 @@ function BlockHelper.setGhostVisuals(ghostRoot: Instance): ()
 		ghostPart.CanQuery = false
 		ghostPart.Transparency = math.max(ghostPart.Transparency, 0.65)
 	end
+end
+
+function BlockHelper.validateDelete(player: Player, target: Instance): boolean
+	if not target:IsA("Model") then
+		return false
+	end
+
+	if not CollectionService:HasTag(target, TOOLS.CREATE.CREATED_MODEL_TAG) then
+		return false
+	end
+
+	local hrp : BasePart? = PlayerHelper.getHumanoidRootPart(player)
+
+	if not hrp then
+		return false
+	end
+
+	if (hrp.CFrame.Position - target.PrimaryPart.Position).Magnitude > TOOLS.DELETE.MAX_DISTANCE_STUDS then
+		return false
+	end
+
+	return true
 end
 
 return BlockHelper

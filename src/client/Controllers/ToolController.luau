@@ -21,7 +21,7 @@ local function onToolEquipped(tool: Tool): ()
 	if toolType == TOOLS.CREATE.TYPE then
 		CreateToolController.onToolEquipped(tool)
 	elseif toolType == TOOLS.DELETE.TYPE then
-		DeleteToolController.createForTool(tool)
+		DeleteToolController.onToolEquipped(tool)
 	end
 end
 
@@ -31,7 +31,7 @@ local function onToolUnequipped(tool: Tool): ()
 	if toolType == TOOLS.CREATE.TYPE then
 		CreateToolController.onToolUnequipped()
 	elseif toolType == TOOLS.DELETE.TYPE then
-		DeleteToolController.clearForTool(tool)
+		DeleteToolController.onToolUnequipped()
 	end
 end
 
@@ -73,7 +73,6 @@ function ToolController.start(): ()
 	end
 
 	localPlayer.CharacterAdded:Connect(function(addedCharacter: Model): ()
-		DeleteToolController.destroyActive()
 		watchCharacter(addedCharacter)
 	end)
 end

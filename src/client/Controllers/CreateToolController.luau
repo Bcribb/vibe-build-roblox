@@ -48,7 +48,6 @@ local function onRenderStepped(): ()
 	end
 
 	blockGhost = getOrCreateBlockGhost(blockDefinitionNumber)
-
 	blockGhost:setVisible(true)
 
 	local hrp : BasePart? = PlayerHelper.getHumanoidRootPart(Players.LocalPlayer)

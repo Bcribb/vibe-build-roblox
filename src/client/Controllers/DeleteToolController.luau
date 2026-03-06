@@ -1,159 +1,76 @@
 --!strict
 
-local CollectionService: CollectionService = game:GetService("CollectionService")
-local Players: Players = game:GetService("Players")
 local ReplicatedStorage: ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Players: Players = game:GetService("Players")
 local RunService: RunService = game:GetService("RunService")
-local UserInputService: UserInputService = game:GetService("UserInputService")
 
-local clientFolder: Instance = ReplicatedStorage:WaitForChild("Client")
-local classesFolder: Instance = clientFolder:WaitForChild("Classes")
 local packagesFolder: Instance = ReplicatedStorage:WaitForChild("Packages")
 local remotesFolder: Folder = ReplicatedStorage:WaitForChild("Remotes") :: Folder
-local sharedFolder: Instance = ReplicatedStorage:WaitForChild("Shared")
-local constantsFolder: Instance = sharedFolder:WaitForChild("Constants")
-local helpersFolder: Instance = sharedFolder:WaitForChild("Helpers")
-
-local TOOLS: any = require(constantsFolder:WaitForChild("Tools"))
+local classesFolder: Instance = ReplicatedStorage:WaitForChild("Client"):WaitForChild("Classes")
+local helpersFolder: Instance = ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Helpers")
+local constantsFolder: Instance = ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Constants")
 
 local Comm: any = require(packagesFolder:WaitForChild("Comm"))
+
 local RaycastHelper: any = require(helpersFolder:WaitForChild("RaycastHelper"))
+local BlockHelper: any = require(helpersFolder:WaitForChild("BlockHelper"))
+
 local DeleteHighlight: any = require(classesFolder:WaitForChild("DeleteHighlight"))
+
+local deleteHighlight : any = DeleteHighlight.new()
+local enabled : boolean = false
 
 local blockClientComm: any = Comm.ClientComm.new(remotesFolder, false, "BlockService")
 local destroyBlockRemote: any = blockClientComm:GetFunction("DestroyBlock")
+local targetModel: Model? = nil
+local toolActivatedConnection: RBXScriptConnection? = nil
 
 local DeleteToolController: any = {}
 
-local activeTool: Tool? = nil
-local deleteHighlight: any = DeleteHighlight.new()
-
-local function isWithinDeleteDistance(hitPosition: Vector3): boolean
-	local localPlayer: Player = Players.LocalPlayer
-	local character: Model? = localPlayer.Character
-
-	if character == nil then
-		return false
+local function onRenderStepped(): ()
+	if not enabled then
+		return
 	end
 
-	local rootPart: BasePart? = character.PrimaryPart
-
-	if rootPart == nil then
-		return false
-	end
-
-	local distanceFromRoot: number = (hitPosition - rootPart.Position).Magnitude
-
-	return distanceFromRoot <= TOOLS.DELETE.MAX_DISTANCE_STUDS
-end
-
-local function getTaggedAncestorModel(startInstance: Instance): Model?
-	local current: Instance? = startInstance
-
-	while current ~= nil do
-		if current:IsA("Model") then
-			local currentModel: Model = current
-
-			if CollectionService:HasTag(currentModel, TOOLS.CREATE.CREATED_MODEL_TAG) then
-				return currentModel
-			end
-		end
-
-		current = current.Parent
-	end
-
-	return nil
-end
-
-local function getValidDeleteModelUnderMouse(): Model?
 	local raycastResult: RaycastResult? = RaycastHelper.raycastFromMouse({ Players.LocalPlayer.Character })
 
-	if raycastResult == nil then
-		return nil
+	if raycastResult then
+		local model: Model = raycastResult.Instance:FindFirstAncestorOfClass("Model")
+
+		if model and BlockHelper.validateDelete(Players.LocalPlayer, model) then
+			targetModel = model
+			deleteHighlight:setTargetModel(model)
+
+			return
+		end
 	end
 
-	if not isWithinDeleteDistance(raycastResult.Position) then
-		return nil
-	end
-
-	return getTaggedAncestorModel(raycastResult.Instance)
-end
-
-local function updateHoverHighlight(): ()
-	local targetModel: Model? = getValidDeleteModelUnderMouse()
-
-	if targetModel == nil then
-		deleteHighlight:setTargetModel(nil)
-		deleteHighlight:setEnabled(false)
-		return
-	end
-
-	deleteHighlight:setTargetModel(targetModel)
-	deleteHighlight:setEnabled(true)
-end
-
-local function destroyActive(): ()
-	deleteHighlight:setTargetModel(nil)
 	deleteHighlight:setEnabled(false)
-	activeTool = nil
 end
 
-function DeleteToolController.destroyActive(): ()
-	destroyActive()
+local function commitDelete(): ()
+	if targetModel then
+		destroyBlockRemote(targetModel)
+	end
 end
 
-function DeleteToolController.createForTool(tool: Tool): ()
-	destroyActive()
-	activeTool = tool
-	updateHoverHighlight()
+function DeleteToolController.onToolEquipped(tool: Tool): ()
+	deleteHighlight:setEnabled(true)
+	toolActivatedConnection = tool.Activated:Connect(commitDelete)
+
+	enabled = true
 end
 
-function DeleteToolController.clearForTool(tool: Tool): ()
-	if activeTool ~= tool then
-		return
+function DeleteToolController.onToolUnequipped(): ()
+	deleteHighlight:setEnabled(false)
+	if toolActivatedConnection then
+		toolActivatedConnection:Disconnect()
+		toolActivatedConnection = nil
 	end
 
-	destroyActive()
+	enabled = false
 end
 
-RunService.RenderStepped:Connect(function(): ()
-	if activeTool == nil then
-		return
-	end
-
-	if activeTool.Parent == nil then
-		destroyActive()
-		return
-	end
-
-	updateHoverHighlight()
-end)
-
-UserInputService.InputBegan:Connect(function(input: InputObject, gameProcessedEvent: boolean): ()
-	if activeTool == nil then
-		return
-	end
-
-	if gameProcessedEvent then
-		return
-	end
-
-	if input.UserInputType ~= Enum.UserInputType.MouseButton1 then
-		return
-	end
-
-	if activeTool.Parent == nil then
-		destroyActive()
-		return
-	end
-
-	local targetModel: Model? = getValidDeleteModelUnderMouse()
-
-	if targetModel == nil then
-		return
-	end
-
-	destroyBlockRemote(targetModel)
-end)
+RunService.RenderStepped:Connect(onRenderStepped)
 
 return DeleteToolController

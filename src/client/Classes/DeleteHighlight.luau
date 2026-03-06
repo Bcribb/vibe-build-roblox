@@ -8,6 +8,8 @@ local constantsFolder: Instance = sharedFolder:WaitForChild("Constants")
 
 local TOOLS: any = require(constantsFolder:WaitForChild("Tools"))
 
+local highlight : Highlight = nil
+
 type DeleteHighlightInstance = {
 	highlight: Highlight,
 }
