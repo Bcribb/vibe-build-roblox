@@ -75,16 +75,6 @@ function BlockHelper.clampPositionFromOrigin(
 end
 
 function BlockHelper.setGhostVisuals(ghostRoot: Instance): ()
-	if ghostRoot:IsA("BasePart") then
-		local ghostPart: BasePart = ghostRoot
-		ghostPart.Anchored = true
-		ghostPart.Massless = true
-		ghostPart.CanCollide = false
-		ghostPart.CanTouch = false
-		ghostPart.CanQuery = false
-		ghostPart.Transparency = math.max(ghostPart.Transparency, 0.65)
-	end
-
 	for _, descendant: Instance in ghostRoot:GetDescendants() do
 		if not descendant:IsA("BasePart") then
 			continue

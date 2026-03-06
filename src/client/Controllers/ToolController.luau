@@ -19,40 +19,20 @@ local function onToolEquipped(tool: Tool): ()
 	local toolType: string? = tool:GetAttribute(TOOLS.CREATE.TOOL_TYPE_ATTRIBUTE_NAME) :: string?
 
 	if toolType == TOOLS.CREATE.TYPE then
-		DeleteToolController.destroyActive()
-		CreateToolController.createForTool(tool)
-
-		return
-	end
-
-	if toolType == TOOLS.DELETE.TYPE then
-		CreateToolController.destroyActive()
+		CreateToolController.onToolEquipped(tool)
+	elseif toolType == TOOLS.DELETE.TYPE then
 		DeleteToolController.createForTool(tool)
-
-		return
 	end
-
-	CreateToolController.destroyActive()
-	DeleteToolController.destroyActive()
 end
 
 local function onToolUnequipped(tool: Tool): ()
 	local toolType: string? = tool:GetAttribute(TOOLS.CREATE.TOOL_TYPE_ATTRIBUTE_NAME) :: string?
 
 	if toolType == TOOLS.CREATE.TYPE then
-		CreateToolController.clearForTool(tool)
-
-		return
-	end
-
-	if toolType == TOOLS.DELETE.TYPE then
+		CreateToolController.onToolUnequipped()
+	elseif toolType == TOOLS.DELETE.TYPE then
 		DeleteToolController.clearForTool(tool)
-
-		return
 	end
-
-	CreateToolController.destroyActive()
-	DeleteToolController.destroyActive()
 end
 
 local function onChildAdded(child: Instance): ()
@@ -60,8 +40,7 @@ local function onChildAdded(child: Instance): ()
 		return
 	end
 
-	local tool: Tool = child
-	onToolEquipped(tool)
+	onToolEquipped(child :: Tool)
 end
 
 local function onChildRemoved(child: Instance): ()
@@ -69,8 +48,7 @@ local function onChildRemoved(child: Instance): ()
 		return
 	end
 
-	local tool: Tool = child
-	onToolUnequipped(tool)
+	onToolUnequipped(child :: Tool)
 end
 
 local function watchCharacter(character: Model): ()
@@ -95,7 +73,6 @@ function ToolController.start(): ()
 	end
 
 	localPlayer.CharacterAdded:Connect(function(addedCharacter: Model): ()
-		CreateToolController.destroyActive()
 		DeleteToolController.destroyActive()
 		watchCharacter(addedCharacter)
 	end)
