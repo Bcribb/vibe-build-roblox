@@ -47,7 +47,7 @@ local function getOrCreateBlockGhost(blockDefinitionNumber: number): any
 end
 
 local function onRenderStepped(): ()
-	if not enabled or isAwaitingSpawn then
+	if not enabled or isAwaitingSpawn or not PlayerHelper.isPlayerAlive(Players.LocalPlayer) then
 		if blockGhost then
 			blockGhost:setVisible(false)
 		end
@@ -61,8 +61,11 @@ local function onRenderStepped(): ()
 	local hrp : BasePart? = PlayerHelper.getHumanoidRootPart(Players.LocalPlayer)
 
 	if not hrp then
+		blockGhost:setVisible(false)
 		return
 	end
+
+	blockGhost:setVisible(true)
 
 	local raycastResult: RaycastResult? = RaycastHelper.raycastFromMouse({ Players.LocalPlayer.Character })
 	local position: Vector3 = (Players.LocalPlayer:GetMouse().Hit.Position)
@@ -78,7 +81,7 @@ local function onRenderStepped(): ()
 end
 
 local function onToolActivated(): ()
-	if not blockGhost or isAwaitingSpawn then
+	if not blockGhost or isAwaitingSpawn or not PlayerHelper.isPlayerAlive(Players.LocalPlayer) then
 		return
 	end
 

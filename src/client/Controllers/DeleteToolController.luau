@@ -14,6 +14,7 @@ local Comm: any = require(packagesFolder:WaitForChild("Comm"))
 
 local RaycastHelper: any = require(helpersFolder:WaitForChild("RaycastHelper"))
 local BlockHelper: any = require(helpersFolder:WaitForChild("BlockHelper"))
+local PlayerHelper: any = require(helpersFolder:WaitForChild("PlayerHelper"))
 
 local DeleteHighlight: any = require(classesFolder:WaitForChild("DeleteHighlight"))
 
@@ -28,7 +29,9 @@ local toolActivatedConnection: RBXScriptConnection? = nil
 local DeleteToolController: any = {}
 
 local function onRenderStepped(): ()
-	if not enabled then
+	if not enabled or not PlayerHelper.isPlayerAlive(Players.LocalPlayer) then
+		targetModel = nil
+		deleteHighlight:setEnabled(false)
 		return
 	end
 
@@ -50,13 +53,13 @@ local function onRenderStepped(): ()
 end
 
 local function commitDelete(): ()
-	if targetModel then
+	if targetModel and PlayerHelper.isPlayerAlive(Players.LocalPlayer) then
 		destroyBlockRemote(targetModel)
 	end
 end
 
 function DeleteToolController.onToolEquipped(tool: Tool): ()
-	deleteHighlight:setEnabled(true)
+	deleteHighlight:setEnabled(PlayerHelper.isPlayerAlive(Players.LocalPlayer))
 	toolActivatedConnection = tool.Activated:Connect(commitDelete)
 
 	enabled = true
