@@ -60,7 +60,7 @@ local function getRandomBlockKey(): number
 	return randomIndex
 end
 
-local function grantEmptyTool(player: Player): ()
+local function grantCreateTool(player: Player): ()
 	local backpack: Instance? = player:FindFirstChildOfClass("Backpack")
 
 	if backpack == nil then
@@ -114,7 +114,7 @@ local function pollProviderTouches(): ()
 				continue
 			end
 
-			grantEmptyTool(player)
+			grantCreateTool(player)
 		end
 	end
 end

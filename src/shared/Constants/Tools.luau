@@ -41,8 +41,10 @@ local TOOLS: ToolsConstants = {
 		NAME = "Delete",
 		TYPE = "delete",
 		TOOL_TYPE_ATTRIBUTE_NAME = "ToolType",
+
 		TOOL = toolsFolder:WaitForChild("Delete"),
 		MAX_DISTANCE_STUDS = 12,
+
 		HIGHLIGHT_FILL_COLOR = Color3.fromRGB(255, 85, 85),
 		HIGHLIGHT_FILL_TRANSPARENCY = 0.7,
 		HIGHLIGHT_OUTLINE_COLOR = Color3.fromRGB(255, 0, 0),
@@ -53,10 +55,12 @@ local TOOLS: ToolsConstants = {
 		NAME = "Create",
 		TYPE = "create",
 		TOOL_TYPE_ATTRIBUTE_NAME = "ToolType",
+
 		TOOL = toolsFolder:WaitForChild("Create"),
+		PREVIEW_DISTANCE_STUDS = 8,
+
 		BLOCK_ATTRIBUTE_NAME = "BlockType",
 		CREATED_MODEL_TAG = "BuiltModel",
-		PREVIEW_DISTANCE_STUDS = 8,
 	},
 }
 

@@ -70,19 +70,9 @@ local function validateDestroyModel(player: Player, args: { any }): (boolean, ..
 end
 
 function BlockService.spawnBlock(blockDefinitionNumber: number, position: Vector3): PlaceableBlockInstance?
-	local blockInstance: PlaceableBlockInstance? =
-		BlockHelper.createBlockInstance(blockDefinitionNumber)
-
-	if blockInstance == nil then
-		warn("[BlockService] Failed to create block instance for definition:", blockDefinitionNumber)
-		return nil
-	end
-
 	local blocksFolder: Folder = getBlocksFolder()
-
-	if blockInstance:IsA("Model") then
-		ensurePrimaryPart(blockInstance)
-	end
+	local blockInstance: PlaceableBlockInstance? = BlockHelper.createBlockInstance(blockDefinitionNumber)
+	ensurePrimaryPart(blockInstance)
 
 	blockInstance.Parent = blocksFolder
 	local placeableInstance: PVInstance = blockInstance
