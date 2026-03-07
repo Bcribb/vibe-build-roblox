@@ -84,6 +84,12 @@
         "$properties": {
           "PrimaryAlias": "/showHurtbox"
         }
+      },
+      "ShowBounds": {
+        "$className": "TextChatCommand",
+        "$properties": {
+          "PrimaryAlias": "/showBounds"
+        }
       }
     }
   }

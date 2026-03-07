@@ -6,25 +6,24 @@ local TextChatService: TextChatService = game:GetService("TextChatService")
 
 local sharedFolder: Instance = ReplicatedStorage:WaitForChild("Shared")
 local constantsFolder: Instance = sharedFolder:WaitForChild("Constants")
+local clientFolder: Instance = ReplicatedStorage:WaitForChild("Client")
+local datastorageFolder: Instance = clientFolder:WaitForChild("Datastorage")
 
 local HURTBOX_CONSTANTS: any = require(constantsFolder:WaitForChild("HurtboxConstants"))
+
+local BlockController: any = require(clientFolder:WaitForChild("Controllers"):WaitForChild("BlockController"))
 
 local enableDebugCommand: TextChatCommand = TextChatService:WaitForChild("EnableDebug") :: TextChatCommand
 local disableDebugCommand: TextChatCommand = TextChatService:WaitForChild("DisableDebug") :: TextChatCommand
 local showHurtboxCommand: TextChatCommand = TextChatService:WaitForChild("ShowHurtbox") :: TextChatCommand
+local showBoundsCommand: TextChatCommand = TextChatService:WaitForChild("ShowBounds") :: TextChatCommand
+
+local DebugDatastorage: any = require(datastorageFolder:WaitForChild("DebugDatastorage"))
 
 local DebugController: any = {}
 
-DebugController.showHurtbox = false
-
-function DebugController.getShowHurtbox(): boolean
-	local showHurtbox: boolean = DebugController.showHurtbox
-
-	return showHurtbox
-end
-
 function DebugController.setShowHurtbox(enabled: boolean): nil
-	DebugController.showHurtbox = enabled
+	DebugDatastorage.showHurtbox = enabled
 
 	local hurtboxTransparency: number = HURTBOX_CONSTANTS.DISABLED_TRANSPARENCY
 
@@ -42,25 +41,37 @@ function DebugController.setShowHurtbox(enabled: boolean): nil
 	return nil
 end
 
-local function setAllDebugFlags(enabled: boolean): nil
-	DebugController.setShowHurtbox(enabled)
+function DebugController.setShowBounds(enabled: boolean): nil
+	DebugDatastorage.showBounds = enabled
+
+	for _, block: any in BlockController.blocks do
+		block:showBounds(enabled)
+	end
 
 	return nil
 end
 
 function DebugController.start(): nil
 	enableDebugCommand.Triggered:Connect(function(_textSource: TextSource, _unfilteredText: string)
-		setAllDebugFlags(true)
+		DebugController.setShowHurtbox(true)
+		DebugController.setShowBounds(true)
 	end)
 
 	disableDebugCommand.Triggered:Connect(function(_textSource: TextSource, _unfilteredText: string)
-		setAllDebugFlags(false)
+		DebugController.setShowHurtbox(false)
+		DebugController.setShowBounds(false)
 	end)
 
 	showHurtboxCommand.Triggered:Connect(function(_textSource: TextSource, _unfilteredText: string)
-		local enabled: boolean = not DebugController.getShowHurtbox()
+		local enabled: boolean = not DebugDatastorage.showHurtbox
 
 		DebugController.setShowHurtbox(enabled)
+	end)
+
+	showBoundsCommand.Triggered:Connect(function(_textSource: TextSource, _unfilteredText: string)
+		local enabled: boolean = not DebugDatastorage.showBounds
+
+		DebugController.setShowBounds(enabled)
 	end)
 
 	return nil

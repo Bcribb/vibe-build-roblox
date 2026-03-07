@@ -24,7 +24,10 @@ export type BlocksConstants = {
 local BLOCKS: BlocksConstants = {
 	GRID_WIDTH = 6,
 	BLOCK_DEFINITION_ATTRIBUTE = "BlockDefinition",
-	BLOCK_TAG = "BlockTag",
+
+	BLOCK_TAG = "Block",
+	BOUNDS_TAG = "Bounds",
+
 	BLOCK_DEFINITIONS = {
 		[1] = {
 			NAME = "Cube",

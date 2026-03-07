@@ -29,7 +29,7 @@ function Block:setModel(model: Model): ()
 	self.model = model
 end
 
-function Block:enableDebugVisuals(enabled: boolean): ()
+function Block:showBounds(enabled: boolean): ()
 	self.model.PrimaryPart.Transparency = if enabled then 0.7 else 1
 end
 
