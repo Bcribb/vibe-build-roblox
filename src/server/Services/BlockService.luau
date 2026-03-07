@@ -60,6 +60,15 @@ local function validateDestroyModel(player: Player, args: { any }): (boolean, ..
 	return BlockHelper.validateDelete(player, targetModel)
 end
 
+local function onBlockDefinitionDescendantAdded(descendant: Instance): ()
+	if not descendant:HasTag(BLOCKS.BOUNDS_TAG) then
+		return
+	end
+
+	local bounds: BasePart = descendant
+	bounds.Transparency = 1
+end
+
 function BlockService.spawnBlock(blockDefinitionNumber: number, position: Vector3): PlaceableBlockInstance?
 	local blocksFolder: Folder = BlockHelper.getBlocksFolder()
 	local blockInstance: PlaceableBlockInstance? = BlockHelper.createBlockInstance(blockDefinitionNumber)
@@ -98,6 +107,13 @@ function BlockService.init(): ()
 	blockServerComm:BindFunction("DestroyBlock", function(_player: Player, model: Model): ()
 		BlockService.destroyBlock(model)
 	end, { validateDestroyModel })
+
+	local blocksDefinitionFolder: Folder = ReplicatedStorage.Assets.Blocks
+
+	for _, descendant: Instance in blocksDefinitionFolder:GetDescendants() do
+		onBlockDefinitionDescendantAdded(descendant)
+	end
+	blocksDefinitionFolder.DescendantAdded:Connect(onBlockDefinitionDescendantAdded)
 end
 
 function BlockService.start(): ()
