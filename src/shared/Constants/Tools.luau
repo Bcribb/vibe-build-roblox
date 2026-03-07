@@ -18,8 +18,6 @@ export type ToolConstants = {
 }
 
 export type CreateToolConstants = ToolConstants & {
-	BLOCK_ATTRIBUTE_NAME: string,
-	CREATED_MODEL_TAG: string,
 	PREVIEW_DISTANCE_STUDS: number,
 }
 
@@ -61,9 +59,6 @@ local TOOLS: ToolsConstants = {
 
 		TOOL = toolsFolder:WaitForChild("Create"),
 		PREVIEW_DISTANCE_STUDS = BLOCKS.GRID_WIDTH * 1.5,
-
-		BLOCK_ATTRIBUTE_NAME = "BlockType",
-		CREATED_MODEL_TAG = "BuiltModel",
 	},
 }
 

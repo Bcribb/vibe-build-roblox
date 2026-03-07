@@ -96,7 +96,7 @@ local function grantCreateTool(player: Player): ()
 
 	toolInstance.Name = selectedBlock.NAME
 	toolInstance:SetAttribute(tool.TOOL_TYPE_ATTRIBUTE_NAME, tool.TYPE)
-	toolInstance:SetAttribute(tool.BLOCK_ATTRIBUTE_NAME, selectedBlockKey)
+	toolInstance:SetAttribute(BLOCKS.BLOCK_DEFINITION_ATTRIBUTE, selectedBlockKey)
 	toolInstance.Parent = backpack
 end
 

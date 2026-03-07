@@ -14,6 +14,7 @@ local serverFolder: Instance = ServerStorage:WaitForChild("Server")
 local servicesFolder: Instance = serverFolder:WaitForChild("Services")
 
 local Comm: any = require(packagesFolder:WaitForChild("Comm"))
+local BLOCKS: any = require(constantsFolder:WaitForChild("Blocks"))
 local TOOLS: any = require(constantsFolder:WaitForChild("Tools"))
 local BlockHelper: any = require(helpersFolder:WaitForChild("BlockHelper"))
 
@@ -83,7 +84,7 @@ function BlockService.spawnBlock(blockDefinitionNumber: number, position: Vector
 	local placeableInstance: PVInstance = blockInstance
 
 	placeableInstance:PivotTo(CFrame.new(position))
-	CollectionService:AddTag(blockInstance, TOOLS.CREATE.CREATED_MODEL_TAG)
+	CollectionService:AddTag(blockInstance, BLOCKS.BLOCK_TAG)
 
 	return blockInstance
 end

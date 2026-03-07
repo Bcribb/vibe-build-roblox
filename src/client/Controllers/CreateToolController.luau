@@ -14,6 +14,7 @@ local helpersFolder: Instance = sharedFolder:WaitForChild("Helpers")
 
 local Comm: any = require(packagesFolder:WaitForChild("Comm"))
 
+local BLOCKS: any = require(constantsFolder:WaitForChild("Blocks"))
 local TOOLS: any = require(constantsFolder:WaitForChild("Tools"))
 
 local VectorHelper: any = require(helpersFolder:WaitForChild("VectorHelper"))
@@ -98,7 +99,7 @@ local function onToolActivated(): ()
 end
 
 function CreateToolController.onToolEquipped(tool: Tool): ()
-	blockDefinitionNumber = tool:GetAttribute(TOOLS.CREATE.BLOCK_ATTRIBUTE_NAME) :: number
+	blockDefinitionNumber = tool:GetAttribute(BLOCKS.BLOCK_DEFINITION_ATTRIBUTE) :: number
 	toolActivatedConnection = tool.Activated:Connect(onToolActivated)
 	isAwaitingSpawn = false
 

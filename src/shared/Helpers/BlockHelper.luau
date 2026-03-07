@@ -105,7 +105,7 @@ function BlockHelper.validateDelete(player: Player, target: Instance): boolean
 		return false
 	end
 
-	if not CollectionService:HasTag(target, TOOLS.CREATE.CREATED_MODEL_TAG) then
+	if not CollectionService:HasTag(target, BLOCKS.BLOCK_TAG) then
 		return false
 	end
 
