@@ -6,7 +6,7 @@ local assetsFolder: Instance = ReplicatedStorage:WaitForChild("Assets")
 local constantsFolder: Instance = ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Constants")
 local toolsFolder: Instance = assetsFolder:WaitForChild("Tools")
 
-local GRID: any = require(constantsFolder:WaitForChild("Grid"))
+local BLOCKS: any = require(constantsFolder:WaitForChild("Blocks"))
 
 export type ToolType = "create" | "delete"
 
@@ -60,7 +60,7 @@ local TOOLS: ToolsConstants = {
 		TOOL_TYPE_ATTRIBUTE_NAME = "ToolType",
 
 		TOOL = toolsFolder:WaitForChild("Create"),
-		PREVIEW_DISTANCE_STUDS = GRID.GRID_WIDTH * 1.5,
+		PREVIEW_DISTANCE_STUDS = BLOCKS.GRID_WIDTH * 1.5,
 
 		BLOCK_ATTRIBUTE_NAME = "BlockType",
 		CREATED_MODEL_TAG = "BuiltModel",

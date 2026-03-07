@@ -76,7 +76,7 @@ local function destroyCreateToolsInContainer(container: Instance?): ()
 end
 
 local function getRandomBlockKey(): number
-	local randomIndex: number = randomGenerator:NextInteger(1, #BLOCKS)
+	local randomIndex: number = randomGenerator:NextInteger(1, #BLOCKS.BLOCK_DEFINITIONS)
 
 	return randomIndex
 end
@@ -92,7 +92,7 @@ local function grantCreateTool(player: Player): ()
 
 	local toolInstance: Tool = tool.TOOL:Clone()
 	local selectedBlockKey: number = getRandomBlockKey()
-	local selectedBlock: BLOCKS.BlockDefinition = BLOCKS[selectedBlockKey]
+	local selectedBlock: BLOCKS.BlockDefinition = BLOCKS.BLOCK_DEFINITIONS[selectedBlockKey]
 
 	toolInstance.Name = selectedBlock.NAME
 	toolInstance:SetAttribute(tool.TOOL_TYPE_ATTRIBUTE_NAME, tool.TYPE)

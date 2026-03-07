@@ -36,7 +36,7 @@ function BlockHelper.getBlocksFolder(): Folder
 end
 
 function BlockHelper.createBlockInstance(blockDefinitionNumber: number): CloneableBlockInstance?
-	local blockDefinition: BlockDefinition? = BLOCKS[blockDefinitionNumber]
+	local blockDefinition: BlockDefinition? = BLOCKS.BLOCK_DEFINITIONS[blockDefinitionNumber]
 
 	if blockDefinition == nil then
 		error("[BlockHelper] Missing block definition for block definition number: ", blockDefinitionNumber)

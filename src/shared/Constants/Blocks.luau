@@ -10,22 +10,30 @@ export type BlockDefinition = {
 	MODEL: Instance,
 }
 
+export type BlockDefinitions = {
+	[number]: BlockDefinition,
+}
+
 export type BlocksConstants = {
-    [number]: BlockDefinition,
+	GRID_WIDTH: number,
+	BLOCK_DEFINITIONS: BlockDefinitions,
 }
 
 local BLOCKS: BlocksConstants = {
-    [1] = {
-        NAME = "Cube",
-        MODEL = blocksFolder:WaitForChild("Cube"),
-	},
-	[2] = {
-		NAME = "Wedge",
-		MODEL = blocksFolder:WaitForChild("Wedge"),
-	},
-	[3] = {
-		NAME = "Sphere",
-		MODEL = blocksFolder:WaitForChild("Sphere"),
+	GRID_WIDTH = 6,
+	BLOCK_DEFINITIONS = {
+		[1] = {
+			NAME = "Cube",
+			MODEL = blocksFolder:WaitForChild("Cube"),
+		},
+		[2] = {
+			NAME = "Wedge",
+			MODEL = blocksFolder:WaitForChild("Wedge"),
+		},
+		[3] = {
+			NAME = "Sphere",
+			MODEL = blocksFolder:WaitForChild("Sphere"),
+		},
 	},
 }
 
