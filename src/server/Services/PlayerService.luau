@@ -2,12 +2,18 @@
 
 local Players: Players = game:GetService("Players")
 local ReplicatedStorage: ReplicatedStorage = game:GetService("ReplicatedStorage")
+local ServerStorage: ServerStorage = game:GetService("ServerStorage")
 
 local sharedFolder: Instance = ReplicatedStorage:WaitForChild("Shared")
 local constantsFolder: Instance = sharedFolder:WaitForChild("Constants")
+local serverFolder: Instance = ServerStorage:WaitForChild("Server")
+local servicesFolder: Instance = serverFolder:WaitForChild("Services")
 
 local COLLISION_GROUP_CONSTANTS: any = require(constantsFolder:WaitForChild("CollisionGroupConstants"))
+local HURTBOX_CONSTANTS: any = require(constantsFolder:WaitForChild("HurtboxConstants"))
 local TOOLS: any = require(constantsFolder:WaitForChild("Tools"))
+
+local HurtboxService: any = require(servicesFolder:WaitForChild("HurtboxService"))
 
 local PlayerService: any = {}
 
@@ -51,14 +57,21 @@ local function setCollisionGroup(character: Model): ()
 	end
 end
 
-local function watchPlayer(player: Player): ()
-	player.CharacterAdded:Connect(function(character: Model): ()
-		grantDeleteTool(player)
-		setCollisionGroup(character)
-	end)
+local function createHurtbox(character: Model): ()
+	HurtboxService.createForModel(character, HURTBOX_CONSTANTS.PLAYER_HURTBOX_SIZE)
+end
 
-	if player.Character ~= nil then
-		grantDeleteTool(player)
+local function onCharacterAdded(character: Model): ()
+	grantDeleteTool(Players:GetPlayerFromCharacter(character))
+	setCollisionGroup(character)
+	createHurtbox(character)
+end
+
+local function watchPlayer(player: Player): ()
+	player.CharacterAdded:Connect(onCharacterAdded)
+
+	if player.Character then
+		onCharacterAdded(player.Character)
 	end
 end
 

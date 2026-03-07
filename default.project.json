@@ -62,6 +62,29 @@
       "$properties": {
         "RespectFilteringEnabled": true
       }
+    },
+    "TextChatService": {
+      "$properties": {
+        "ChatVersion": "TextChatService"
+      },
+      "EnableDebug": {
+        "$className": "TextChatCommand",
+        "$properties": {
+          "PrimaryAlias": "/enableDebug"
+        }
+      },
+      "DisableDebug": {
+        "$className": "TextChatCommand",
+        "$properties": {
+          "PrimaryAlias": "/disableDebug"
+        }
+      },
+      "ShowHurtbox": {
+        "$className": "TextChatCommand",
+        "$properties": {
+          "PrimaryAlias": "/showHurtbox"
+        }
+      }
     }
   }
 }
