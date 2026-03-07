@@ -17,7 +17,7 @@ function Block.new(blockDefinitionNumber: number): any
 	return self
 end
 
-function Block:fromModel(model: Model): any
+function Block.fromModel(model: Model): any
 	local blockDefinitionNumber: number = model:GetAttribute(BLOCKS.BLOCK_DEFINITION_ATTRIBUTE)
 	local block: any = Block.new(blockDefinitionNumber)
 	block:setModel(model)
@@ -30,7 +30,7 @@ function Block:setModel(model: Model): ()
 end
 
 function Block:enableDebugVisuals(enabled: boolean): ()
-	self.model.PrimaryPart.Transparency = if enabled then 0.7 else 0
+	self.model.PrimaryPart.Transparency = if enabled then 0.7 else 1
 end
 
 return Block

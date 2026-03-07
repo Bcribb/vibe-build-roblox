@@ -40,6 +40,9 @@
       "World": {
         "$className": "Folder",
         "$path": "Assets/World.rbxmx"
+      },
+      "$properties": {
+        "StreamingEnabled": true
       }
     },
     "Lighting": {

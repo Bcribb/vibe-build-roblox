@@ -39,21 +39,6 @@ local function ensureBlocksFolder(): Folder
 	return blocksFolder
 end
 
-local function ensurePrimaryPart(model: Model): ()
-	if model.PrimaryPart ~= nil then
-		return
-	end
-
-	for _, descendant: Instance in model:GetDescendants() do
-		if not descendant:IsA("BasePart") then
-			continue
-		end
-
-		model.PrimaryPart = descendant
-		return
-	end
-end
-
 local function validateDestroyModel(player: Player, args: { any }): (boolean, ...any)
 	local modelArgument: any = args[1]
 
@@ -78,7 +63,6 @@ end
 function BlockService.spawnBlock(blockDefinitionNumber: number, position: Vector3): PlaceableBlockInstance?
 	local blocksFolder: Folder = BlockHelper.getBlocksFolder()
 	local blockInstance: PlaceableBlockInstance? = BlockHelper.createBlockInstance(blockDefinitionNumber)
-	ensurePrimaryPart(blockInstance)
 
 	blockInstance.Parent = blocksFolder
 	local placeableInstance: PVInstance = blockInstance
