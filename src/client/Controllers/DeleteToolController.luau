@@ -12,6 +12,8 @@ local constantsFolder: Instance = ReplicatedStorage:WaitForChild("Shared"):WaitF
 
 local Comm: any = require(packagesFolder:WaitForChild("Comm"))
 
+local TOOLS: any = require(constantsFolder:WaitForChild("Tools"))
+
 local RaycastHelper: any = require(helpersFolder:WaitForChild("RaycastHelper"))
 local BlockHelper: any = require(helpersFolder:WaitForChild("BlockHelper"))
 local PlayerHelper: any = require(helpersFolder:WaitForChild("PlayerHelper"))
@@ -25,13 +27,64 @@ local blockClientComm: any = Comm.ClientComm.new(remotesFolder, false, "BlockSer
 local destroyBlockRemote: any = blockClientComm:GetFunction("DestroyBlock")
 local targetModel: Model? = nil
 local toolActivatedConnection: RBXScriptConnection? = nil
+local lastEquippedTool: Tool? = nil
 
 local DeleteToolController: any = {}
 
+local function findEquippedDeleteTool(): Tool?
+	local character: Model? = Players.LocalPlayer.Character
+
+	if character == nil or not PlayerHelper.isPlayerAlive(Players.LocalPlayer) then
+		return nil
+	end
+
+	for _, child: Instance in character:GetChildren() do
+		if child:IsA("Tool") then
+			local toolType: string? = (child :: Tool):GetAttribute(TOOLS.DELETE.TOOL_TYPE_ATTRIBUTE_NAME) :: string?
+
+			if toolType == TOOLS.DELETE.TYPE then
+				return child :: Tool
+			end
+		end
+	end
+
+	return nil
+end
+
+local function commitDelete(): ()
+	if targetModel and PlayerHelper.isPlayerAlive(Players.LocalPlayer) then
+		destroyBlockRemote(targetModel)
+	end
+end
+
 local function onRenderStepped(): ()
+	local tool: Tool? = findEquippedDeleteTool()
+
+	if tool ~= lastEquippedTool then
+		if lastEquippedTool ~= nil then
+			deleteHighlight:setEnabled(false)
+			if toolActivatedConnection then
+				toolActivatedConnection:Disconnect()
+				toolActivatedConnection = nil
+			end
+
+			enabled = false
+		end
+
+		lastEquippedTool = tool
+
+		if tool ~= nil then
+			deleteHighlight:setEnabled(PlayerHelper.isPlayerAlive(Players.LocalPlayer))
+			toolActivatedConnection = tool.Activated:Connect(commitDelete)
+
+			enabled = true
+		end
+	end
+
 	if not enabled or not PlayerHelper.isPlayerAlive(Players.LocalPlayer) then
 		targetModel = nil
 		deleteHighlight:setEnabled(false)
+
 		return
 	end
 
@@ -50,29 +103,6 @@ local function onRenderStepped(): ()
 	end
 
 	deleteHighlight:setEnabled(false)
-end
-
-local function commitDelete(): ()
-	if targetModel and PlayerHelper.isPlayerAlive(Players.LocalPlayer) then
-		destroyBlockRemote(targetModel)
-	end
-end
-
-function DeleteToolController.onToolEquipped(tool: Tool): ()
-	deleteHighlight:setEnabled(PlayerHelper.isPlayerAlive(Players.LocalPlayer))
-	toolActivatedConnection = tool.Activated:Connect(commitDelete)
-
-	enabled = true
-end
-
-function DeleteToolController.onToolUnequipped(): ()
-	deleteHighlight:setEnabled(false)
-	if toolActivatedConnection then
-		toolActivatedConnection:Disconnect()
-		toolActivatedConnection = nil
-	end
-
-	enabled = false
 end
 
 RunService.RenderStepped:Connect(onRenderStepped)

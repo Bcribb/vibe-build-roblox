@@ -26,13 +26,34 @@ local spawnBlockRemote: any = blockClientComm:GetFunction("SpawnBlock")
 
 local BlockGhost: any = require(classesFolder:WaitForChild("BlockGhost"))
 
-local enabled : boolean = false
+local enabled: boolean = false
 local isAwaitingSpawn: boolean = false
-local blockDefinitionNumber : number? = nil
-local blockGhost : any? = nil
-local toolActivatedConnection : RBXScriptConnection? = nil
+local blockDefinitionNumber: number? = nil
+local blockGhost: any? = nil
+local toolActivatedConnection: RBXScriptConnection? = nil
+local lastEquippedTool: Tool? = nil
 
 local CreateToolController: any = {}
+
+local function findEquippedCreateTool(): Tool?
+	local character: Model? = Players.LocalPlayer.Character
+
+	if character == nil or not PlayerHelper.isPlayerAlive(Players.LocalPlayer) then
+		return nil
+	end
+
+	for _, child: Instance in character:GetChildren() do
+		if child:IsA("Tool") then
+			local toolType: string? = (child :: Tool):GetAttribute(TOOLS.CREATE.TOOL_TYPE_ATTRIBUTE_NAME) :: string?
+
+			if toolType == TOOLS.CREATE.TYPE then
+				return child :: Tool
+			end
+		end
+	end
+
+	return nil
+end
 
 local function getOrCreateBlockGhost(blockDefinitionNumber: number): any
 	if blockGhost then
@@ -47,44 +68,12 @@ local function getOrCreateBlockGhost(blockDefinitionNumber: number): any
 	return BlockGhost.new(blockDefinitionNumber)
 end
 
-local function getPlacementPosition(): Vector3
-	local cameraCFrame : CFrame = workspace.CurrentCamera.CFrame
-	local cameraLookVector : Vector3 = cameraCFrame.LookVector
-	local cameraRightVector : Vector3 = cameraCFrame.RightVector
-	local cameraFlattenedLookVector : Vector3 = VectorHelper.flattenedUnit(cameraLookVector)
-	local angle : number = cameraFlattenedLookVector:Angle(cameraLookVector, cameraRightVector) + math.pi / 16
-
-	local rotation : number = math.sign(angle) * (math.pi / 2) * ((angle / (math.pi / 2)) ^ 2)
-	
-	local direction : Vector3 = VectorHelper.rotateAboutAxis(cameraFlattenedLookVector, cameraRightVector, rotation)
-	local offset : Vector3 = direction * TOOLS.CREATE.PREVIEW_DISTANCE_STUDS
-
-	local hrp : BasePart = PlayerHelper.getHumanoidRootPart(Players.LocalPlayer) :: BasePart
-	local placementPosition : Vector3 = GridHelper.alignPositionToGrid(hrp.CFrame.Position + offset)
-
-	return placementPosition
-end
-
-local function onRenderStepped(): ()
-	if not enabled or isAwaitingSpawn or not PlayerHelper.isPlayerAlive(Players.LocalPlayer) then
-		if blockGhost then
-			blockGhost:setVisible(false)
-		end
-
-		return
-	end
-
-	blockGhost = getOrCreateBlockGhost(blockDefinitionNumber)
-	blockGhost:setVisible(true)
-	blockGhost:setPosition(getPlacementPosition())
-end
-
 local function onToolActivated(): ()
 	if not blockGhost or isAwaitingSpawn or not PlayerHelper.isPlayerAlive(Players.LocalPlayer) then
 		return
 	end
 
-	local ghostPart: BasePart? = blockGhost.model:FindFirstChildWhichIsA("BasePart", true)
+	local ghostPart: BasePart? = blockGhost.model.PrimaryPart :: BasePart
 
 	if ghostPart == nil then
 		return
@@ -98,22 +87,61 @@ local function onToolActivated(): ()
 	end)
 end
 
-function CreateToolController.onToolEquipped(tool: Tool): ()
-	blockDefinitionNumber = tool:GetAttribute(BLOCKS.BLOCK_DEFINITION_ATTRIBUTE) :: number
-	toolActivatedConnection = tool.Activated:Connect(onToolActivated)
-	isAwaitingSpawn = false
+local function getPlacementPosition(): Vector3
+	local cameraCFrame : CFrame = workspace.CurrentCamera.CFrame
+	local cameraLookVector : Vector3 = cameraCFrame.LookVector
+	local cameraRightVector : Vector3 = cameraCFrame.RightVector
+	local cameraFlattenedLookVector : Vector3 = VectorHelper.flattenedUnit(cameraLookVector)
+	local angle : number = cameraFlattenedLookVector:Angle(cameraLookVector, cameraRightVector) + math.pi / 16
 
-	enabled = true
+	local rotation : number = math.sign(angle) * (math.pi / 2) * ((angle / (math.pi / 2)) ^ 2)
+
+	local direction : Vector3 = VectorHelper.rotateAboutAxis(cameraFlattenedLookVector, cameraRightVector, rotation)
+	local offset : Vector3 = direction * TOOLS.CREATE.PREVIEW_DISTANCE_STUDS
+
+	local hrp : BasePart = PlayerHelper.getHumanoidRootPart(Players.LocalPlayer) :: BasePart
+	local placementPosition : Vector3 = GridHelper.alignPositionToGrid(hrp.CFrame.Position + offset)
+
+	return placementPosition
 end
 
-function CreateToolController.onToolUnequipped(): ()
-	if toolActivatedConnection then
-		toolActivatedConnection:Disconnect()
-		toolActivatedConnection = nil
+local function onRenderStepped(): ()
+	local tool: Tool? = findEquippedCreateTool()
+
+	if tool ~= lastEquippedTool then
+		if lastEquippedTool ~= nil then
+			if toolActivatedConnection then
+				toolActivatedConnection:Disconnect()
+				toolActivatedConnection = nil
+			end
+
+			isAwaitingSpawn = false
+			enabled = false
+		end
+
+		lastEquippedTool = tool
+
+		if tool ~= nil then
+			blockDefinitionNumber = tool:GetAttribute(BLOCKS.BLOCK_DEFINITION_ATTRIBUTE) :: number
+			toolActivatedConnection = tool.Activated:Connect(onToolActivated)
+			isAwaitingSpawn = false
+			enabled = true
+		end
 	end
 
-	isAwaitingSpawn = false
-	enabled = false
+	if not enabled or isAwaitingSpawn or not PlayerHelper.isPlayerAlive(Players.LocalPlayer) then
+		if blockGhost then
+			blockGhost:setVisible(false)
+			blockGhost:destroy()
+			blockGhost = nil
+		end
+
+		return
+	end
+
+	blockGhost = getOrCreateBlockGhost(blockDefinitionNumber :: number)
+	blockGhost:setVisible(true)
+	blockGhost:setPosition(getPlacementPosition())
 end
 
 RunService.RenderStepped:Connect(onRenderStepped)
