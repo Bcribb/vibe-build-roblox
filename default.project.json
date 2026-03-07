@@ -16,7 +16,7 @@
         "$path": "src/shared"
       },
       "Assets": {
-        "$path": "Assets/Assets.rbxmx"
+        "$path": "Assets/Assets.rbxm"
       }
     },
     "ServerScriptService": {
@@ -39,7 +39,7 @@
     "Workspace": {
       "World": {
         "$className": "Folder",
-        "$path": "Assets/World.rbxmx"
+        "$path": "Assets/World.rbxm"
       },
       "$properties": {
         "StreamingEnabled": true
