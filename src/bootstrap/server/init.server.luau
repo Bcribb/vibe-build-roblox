@@ -3,13 +3,23 @@
 local ReplicatedStorage: ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerStorage: ServerStorage = game:GetService("ServerStorage")
 
-local serverFolder: Instance = ServerStorage:WaitForChild("Server")
 local sharedFolder: Instance = ReplicatedStorage:WaitForChild("Shared")
 local helpersFolder: Instance = sharedFolder:WaitForChild("Helpers")
+local EXPERIENCE: any = require(sharedFolder:WaitForChild("Constants"):WaitForChild("Experience"))
 
 local BootstrapLoader: any = require(helpersFolder:WaitForChild("BootstrapLoader"))
 
-local servicesFolder: Instance = serverFolder:WaitForChild("Services")
-local sharedSystemsFolder: Instance = sharedFolder:WaitForChild("SharedSystems")
+local serverFolder: Instance = ServerStorage:WaitForChild("Server")
+local foldersToLoad: { Instance } = {
+	serverFolder:WaitForChild("Services"),
+	sharedFolder:WaitForChild("SharedSystems"),
+}
 
-BootstrapLoader.run({ servicesFolder, sharedSystemsFolder })
+if game.PlaceId == EXPERIENCE.GYM_PLACE_ID then
+	local testFolder: Instance = ServerStorage:WaitForChild("Test")
+	local replicatedTestFolder: Instance = ReplicatedStorage:WaitForChild("Test")
+	table.insert(foldersToLoad, testFolder:WaitForChild("Services"))
+	table.insert(foldersToLoad, replicatedTestFolder:WaitForChild("Shared"):WaitForChild("SharedSystems"))
+end
+
+BootstrapLoader.run(foldersToLoad)

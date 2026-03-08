@@ -51,7 +51,7 @@
     "Workspace": {
       "World": {
         "$className": "Folder",
-        "$path": "Assets/World.rbxm"
+        "$path": "World"
       },
       "$properties": {
         "StreamingEnabled": true

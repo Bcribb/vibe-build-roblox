@@ -1,0 +1,7 @@
+--!strict
+
+local EXPERIENCE = {
+    GYM_PLACE_ID = 107721637517658
+}
+
+return EXPERIENCE
