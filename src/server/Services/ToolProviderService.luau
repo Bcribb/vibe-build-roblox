@@ -81,7 +81,7 @@ local function getRandomBlockKey(): number
 	return randomIndex
 end
 
-local function grantCreateTool(player: Player): ()
+local function grantCreateToolWithBlock(player: Player, blockKey: number): ()
 	local backpack: Instance? = player:FindFirstChildOfClass("Backpack")
 
 	if backpack == nil then
@@ -89,15 +89,18 @@ local function grantCreateTool(player: Player): ()
 	end
 
 	local tool: TOOLS.CreateToolConstants = TOOLS.CREATE
+	local selectedBlock: BLOCKS.BlockDefinition = BLOCKS.BLOCK_DEFINITIONS[blockKey]
 
 	local toolInstance: Tool = tool.TOOL:Clone()
-	local selectedBlockKey: number = getRandomBlockKey()
-	local selectedBlock: BLOCKS.BlockDefinition = BLOCKS.BLOCK_DEFINITIONS[selectedBlockKey]
-
 	toolInstance.Name = selectedBlock.NAME
 	toolInstance:SetAttribute(tool.TOOL_TYPE_ATTRIBUTE_NAME, tool.TYPE)
-	toolInstance:SetAttribute(BLOCKS.BLOCK_DEFINITION_ATTRIBUTE, selectedBlockKey)
+	toolInstance:SetAttribute(BLOCKS.BLOCK_DEFINITION_ATTRIBUTE, blockKey)
 	toolInstance.Parent = backpack
+end
+
+local function grantCreateTool(player: Player): ()
+	local blockKey: number = getRandomBlockKey()
+	grantCreateToolWithBlock(player, blockKey)
 end
 
 local function pollProviderTouches(): ()
@@ -110,6 +113,10 @@ local function pollProviderTouches(): ()
 		end
 
 		local providerPart: BasePart = providerInstance
+		local blockKeyRaw: any = providerPart:GetAttribute(BLOCKS.BLOCK_DEFINITION_ATTRIBUTE)
+		local blockKey: number? = if typeof(blockKeyRaw) == "number" and blockKeyRaw >= 1 and blockKeyRaw <= #BLOCKS.BLOCK_DEFINITIONS
+			then blockKeyRaw
+			else nil
 		local touchingParts: { BasePart } = Workspace:GetPartsInPart(providerPart, overlapParams)
 
 		for _, touchingPart: BasePart in touchingParts do
@@ -131,11 +138,14 @@ local function pollProviderTouches(): ()
 
 			processedPlayers[player] = true
 
-			if playerHasCreateTool(player) then
-				continue
+			if blockKey ~= nil then
+				local backpack: Instance? = player:FindFirstChildOfClass("Backpack")
+				destroyCreateToolsInContainer(backpack)
+				destroyCreateToolsInContainer(player.Character)
+				grantCreateToolWithBlock(player, blockKey)
+			elseif not playerHasCreateTool(player) then
+				grantCreateTool(player)
 			end
-
-			grantCreateTool(player)
 		end
 	end
 end
