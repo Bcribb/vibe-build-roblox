@@ -2,7 +2,8 @@
 .DS_Store
 
 # Project place file
-/VibeBuild.rbxlx
+/VibeBuild.rbxl
+/Gym.rbxl
 
 # Roblox Studio lock files
 /*.rbxlx.lock

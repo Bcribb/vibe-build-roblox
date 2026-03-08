@@ -1,0 +1,114 @@
+{
+  "name": "Gym",
+  "tree": {
+    "$className": "DataModel",
+    "ReplicatedStorage": {
+      "Client": {
+        "$path": "src/client"
+      },
+      "Packages": {
+        "$path": "Packages"
+      },
+      "Remotes": {
+        "$className": "Folder"
+      },
+      "Shared": {
+        "$path": "src/shared"
+      },
+      "Test": {
+        "$className": "Folder",
+        "Client": {
+          "$path": "src/testing/client"
+        },
+        "Shared": {
+          "$path": "src/testing/shared"
+        }
+      },
+      "Assets": {
+        "$path": "Assets/Assets.rbxm"
+      }
+    },
+    "ServerScriptService": {
+      "Server": {
+        "$path": "src/bootstrap/server"
+      }
+    },
+    "ServerStorage": {
+      "Server": {
+        "$path": "src/server"
+      },
+      "Test": {
+        "$path": "src/testing/server"
+      }
+    },
+    "StarterPlayer": {
+      "StarterPlayerScripts": {
+        "Client": {
+          "$path": "src/bootstrap/client"
+        }
+      }
+    },
+    "Workspace": {
+      "World": {
+        "$className": "Folder",
+        "$path": "Assets/World.rbxm"
+      },
+      "$properties": {
+        "StreamingEnabled": true
+      }
+    },
+    "Lighting": {
+      "$properties": {
+        "Ambient": [
+          0,
+          0,
+          0
+        ],
+        "Brightness": 2,
+        "GlobalShadows": true,
+        "Outlines": false,
+        "Technology": "Voxel"
+      }
+    },
+    "SoundService": {
+      "$properties": {
+        "RespectFilteringEnabled": true
+      }
+    },
+    "TextChatService": {
+      "$properties": {
+        "ChatVersion": "TextChatService"
+      },
+      "EnableDebug": {
+        "$className": "TextChatCommand",
+        "$properties": {
+          "PrimaryAlias": "/enableDebug"
+        }
+      },
+      "DisableDebug": {
+        "$className": "TextChatCommand",
+        "$properties": {
+          "PrimaryAlias": "/disableDebug"
+        }
+      },
+      "ShowHurtbox": {
+        "$className": "TextChatCommand",
+        "$properties": {
+          "PrimaryAlias": "/showHurtbox"
+        }
+      },
+      "ShowBounds": {
+        "$className": "TextChatCommand",
+        "$properties": {
+          "PrimaryAlias": "/showBounds"
+        }
+      },
+      "ShowTriggerbox": {
+        "$className": "TextChatCommand",
+        "$properties": {
+          "PrimaryAlias": "/showTriggerbox"
+        }
+      }
+    }
+  }
+}
