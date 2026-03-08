@@ -1,7 +1,7 @@
 --!strict
 
-local ReplicatedStorage: ReplicatedStorage = game:GetService("ReplicatedStorage")
 local CollectionService: CollectionService = game:GetService("CollectionService")
+local ReplicatedStorage: ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local packagesFolder: Instance = ReplicatedStorage:WaitForChild("Packages")
 local remotesFolder: Folder = ReplicatedStorage:WaitForChild("Remotes") :: Folder
@@ -40,6 +40,18 @@ function BlockController.notifyServerBlockTriggered(blockModel: Model): ()
 	blockTriggeredSignal:Fire(blockModel)
 end
 
+local function onBlockTriggeredSignal(player: Player, blockModel: Model): ()
+	local block: any? = BlockController.blocks[blockModel]
+
+	if not block then
+		return
+	end
+
+	if type(block.onTriggered) == "function" then
+		block:onTriggered(player)
+	end
+end
+
 function BlockController.start(): ()
 	for _, model: Model in CollectionService:GetTagged(BLOCKS.BLOCK_TAG) do
 		onBlockAdded(model)
@@ -47,9 +59,7 @@ function BlockController.start(): ()
 
 	CollectionService:GetInstanceAddedSignal(BLOCKS.BLOCK_TAG):Connect(onBlockAdded)
 
-	blockTriggeredSignal:Connect(function(blockModel: Model): ()
-		print("[BlockController] Block triggered", blockModel)
-	end)
+	blockTriggeredSignal:Connect(onBlockTriggeredSignal)
 end
 
 return BlockController

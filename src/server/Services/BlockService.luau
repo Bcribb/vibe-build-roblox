@@ -124,7 +124,7 @@ function BlockService.init(): ()
 			return
 		end
 
-		blockTriggeredSignal:FireExcept(player, blockModel)
+		blockTriggeredSignal:FireExcept(player, player, blockModel)
 	end)
 
 	local blocksDefinitionFolder: Folder = ReplicatedStorage.Assets.Blocks
