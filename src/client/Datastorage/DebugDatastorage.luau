@@ -1,8 +1,9 @@
 --!strict
 
 local DebugDatastorage: any = {
-    showHurtbox = false,
-    showBounds = false,
+	showHurtbox = false,
+	showBounds = false,
+	showTriggerbox = false,
 }
 
 return DebugDatastorage

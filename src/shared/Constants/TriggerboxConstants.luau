@@ -12,7 +12,9 @@ triggerboxOverlapParams.CollisionGroup = COLLISION_GROUP_CONSTANTS.TRIGGERBOX_QU
 
 local TRIGGERBOX_CONSTANTS: { [string]: any } = {
 	TRIGGERBOX_TAG = "Triggerbox",
-    TRIGGERBOX_OVERLAP_PARAMS = triggerboxOverlapParams,
+	TRIGGERBOX_OVERLAP_PARAMS = triggerboxOverlapParams,
+	ENABLED_TRANSPARENCY = 0.7,
+	DISABLED_TRANSPARENCY = 1,
 }
 
 return TRIGGERBOX_CONSTANTS

@@ -90,6 +90,12 @@
         "$properties": {
           "PrimaryAlias": "/showBounds"
         }
+      },
+      "ShowTriggerbox": {
+        "$className": "TextChatCommand",
+        "$properties": {
+          "PrimaryAlias": "/showTriggerbox"
+        }
       }
     }
   }
