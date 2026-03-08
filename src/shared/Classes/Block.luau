@@ -4,7 +4,7 @@ local ReplicatedStorage: ReplicatedStorage = game:GetService("ReplicatedStorage"
 local sharedFolder: Instance = ReplicatedStorage:WaitForChild("Shared")
 local constantsFolder: Instance = sharedFolder:WaitForChild("Constants")
 
-local BLOCKS: any = require(constantsFolder:WaitForChild("Blocks"))
+local BLOCK_CONSTANTS: any = require(constantsFolder:WaitForChild("BlockConstants"))
 
 local Block: any = {}
 Block.__index = Block
@@ -18,7 +18,7 @@ function Block.new(blockDefinitionNumber: number): any
 end
 
 function Block.fromModel(model: Model): any
-	local blockDefinitionNumber: number = model:GetAttribute(BLOCKS.BLOCK_DEFINITION_ATTRIBUTE)
+	local blockDefinitionNumber: number = model:GetAttribute(BLOCK_CONSTANTS.BLOCK_DEFINITION_ATTRIBUTE)
 	local block: any = Block.new(blockDefinitionNumber)
 	block:setModel(model)
 

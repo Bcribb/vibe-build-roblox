@@ -78,6 +78,7 @@ function BlockService.spawnBlock(blockDefinitionNumber: number, position: Vector
 
 	placeableInstance:PivotTo(CFrame.new(position))
 	CollectionService:AddTag(blockInstance, BLOCKS.BLOCK_TAG)
+	blockInstance:SetAttribute(BLOCKS.BLOCK_DEFINITION_ATTRIBUTE, blockDefinitionNumber)
 
 	return blockInstance
 end

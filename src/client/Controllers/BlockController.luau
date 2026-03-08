@@ -20,7 +20,15 @@ local BlockController: any = {
 }
 
 local function onBlockAdded(model: Model): ()
-    local block: any = Block.fromModel(model)
+    local blockDefinitionNumber: number = model:GetAttribute(BLOCKS.BLOCK_DEFINITION_ATTRIBUTE) :: number
+    local definition: BLOCKS.BlockDefinition = BLOCKS.BLOCK_DEFINITIONS[blockDefinitionNumber]
+    local block: any = nil
+
+    if definition.CLASS then
+        block = definition.CLASS.fromModel(model)
+    else
+        block = Block.fromModel(model)
+    end
 
     block:showBounds(DebugDatastorage.showBounds)
 
