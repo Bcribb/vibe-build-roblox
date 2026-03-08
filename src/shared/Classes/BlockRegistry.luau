@@ -26,10 +26,6 @@ local BlockRegistry: any = {}
 function BlockRegistry.getClass(blockDefinitionNumber: number): any
 	local blockClass: any? = classMap[blockDefinitionNumber]
 
-	if not blockClass then
-		error("[BlockRegistry] Missing block class for block definition number: ", blockDefinitionNumber)
-	end
-
 	return blockClass
 end
 
