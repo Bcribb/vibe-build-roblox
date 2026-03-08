@@ -8,6 +8,8 @@ export type BlockConstants = {
 	BLOCK_DEFINITION_ATTRIBUTE: string,
 	BLOCK_TAG: string,
 	BOUNDS_TAG: string,
+	ENABLED_TRANSPARENCY: number,
+	DISABLED_TRANSPARENCY: number,
 }
 
 local BLOCK_CONSTANTS: BlockConstants = {
@@ -15,6 +17,8 @@ local BLOCK_CONSTANTS: BlockConstants = {
 	BLOCK_DEFINITION_ATTRIBUTE = "BlockDefinition",
 	BLOCK_TAG = "Block",
 	BOUNDS_TAG = "Bounds",
+	ENABLED_TRANSPARENCY = 0.7,
+	DISABLED_TRANSPARENCY = 1,
 }
 
 return BLOCK_CONSTANTS

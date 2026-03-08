@@ -9,10 +9,9 @@ local constantsFolder: Instance = sharedFolder:WaitForChild("Constants")
 local clientFolder: Instance = ReplicatedStorage:WaitForChild("Client")
 local datastorageFolder: Instance = clientFolder:WaitForChild("Datastorage")
 
+local BLOCKS: any = require(constantsFolder:WaitForChild("Blocks"))
 local HURTBOX_CONSTANTS: any = require(constantsFolder:WaitForChild("HurtboxConstants"))
 local TRIGGERBOX_CONSTANTS: any = require(constantsFolder:WaitForChild("TriggerboxConstants"))
-
-local BlockController: any = require(clientFolder:WaitForChild("Controllers"):WaitForChild("BlockController"))
 
 local enableDebugCommand: TextChatCommand = TextChatService:WaitForChild("EnableDebug") :: TextChatCommand
 local disableDebugCommand: TextChatCommand = TextChatService:WaitForChild("DisableDebug") :: TextChatCommand
@@ -65,8 +64,17 @@ end
 function DebugController.setShowBounds(enabled: boolean): nil
 	DebugDatastorage.showBounds = enabled
 
-	for _, block: any in BlockController.blocks do
-		block:showBounds(enabled)
+	local boundsTransparency: number = BLOCKS.DISABLED_TRANSPARENCY
+
+	if enabled then
+		boundsTransparency = BLOCKS.ENABLED_TRANSPARENCY
+	end
+
+	local boundsParts: { Instance } = CollectionService:GetTagged(BLOCKS.BOUNDS_TAG)
+
+	for _, taggedInstance in boundsParts do
+		local boundsPart: BasePart = taggedInstance :: BasePart
+		boundsPart.Transparency = boundsTransparency
 	end
 
 	return nil
@@ -101,6 +109,24 @@ function DebugController.start(): nil
 		local enabled: boolean = not DebugDatastorage.showTriggerbox
 
 		DebugController.setShowTriggerbox(enabled)
+	end)
+
+	CollectionService:GetInstanceAddedSignal(BLOCKS.BOUNDS_TAG):Connect(function(instance: Instance)
+		local boundsPart: BasePart = instance :: BasePart
+		local boundsTransparency: number = DebugDatastorage.showBounds and BLOCKS.ENABLED_TRANSPARENCY or BLOCKS.DISABLED_TRANSPARENCY
+		boundsPart.Transparency = boundsTransparency
+	end)
+
+	CollectionService:GetInstanceAddedSignal(TRIGGERBOX_CONSTANTS.TRIGGERBOX_TAG):Connect(function(instance: Instance)
+		local triggerbox: BasePart = instance :: BasePart
+		local triggerboxTransparency: number = DebugDatastorage.showTriggerbox and TRIGGERBOX_CONSTANTS.ENABLED_TRANSPARENCY or TRIGGERBOX_CONSTANTS.DISABLED_TRANSPARENCY
+		triggerbox.Transparency = triggerboxTransparency
+	end)
+
+	CollectionService:GetInstanceAddedSignal(HURTBOX_CONSTANTS.HURTBOX_TAG):Connect(function(instance: Instance)
+		local hurtbox: BasePart = instance :: BasePart
+		local hurtboxTransparency: number = DebugDatastorage.showHurtbox and HURTBOX_CONSTANTS.ENABLED_TRANSPARENCY or HURTBOX_CONSTANTS.DISABLED_TRANSPARENCY
+		hurtbox.Transparency = hurtboxTransparency
 	end)
 
 	return nil

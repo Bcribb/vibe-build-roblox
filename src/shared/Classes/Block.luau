@@ -35,8 +35,4 @@ function Block:setModel(model: Model): ()
 	self.bounds = model.PrimaryPart
 end
 
-function Block:showBounds(enabled: boolean): ()
-	self.model.PrimaryPart.Transparency = if enabled then 0.7 else 1
-end
-
 return Block
