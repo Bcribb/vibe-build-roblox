@@ -9,12 +9,12 @@ local assetsFolder: Instance = ReplicatedStorage:WaitForChild("Assets")
 local blocksFolder: Instance = assetsFolder:WaitForChild("Blocks")
 
 local BLOCK_CONSTANTS: any = require(constantsFolder:WaitForChild("BlockConstants"))
-local BouncyCube: any = require(classesFolder:WaitForChild("Blocks"):WaitForChild("BouncyCube"))
 
 export type BlockDefinition = {
 	NAME: string,
 	MODEL: Instance,
-	CLASS: any,
+	CLASS: any?,
+	COOLDOWN: number?,
 }
 
 export type BlockDefinitions = {
@@ -31,23 +31,41 @@ export type BlocksConstants = {
 
 local BLOCKS: BlocksConstants = table.clone(BLOCK_CONSTANTS) :: BlocksConstants
 BLOCKS.BLOCK_DEFINITIONS = {
-		[1] = {
-			NAME = "Cube",
-			MODEL = blocksFolder:WaitForChild("Cube"),
-		},
-		[2] = {
-			NAME = "Wedge",
-			MODEL = blocksFolder:WaitForChild("Wedge"),
-		},
-		[3] = {
-			NAME = "Sphere",
-			MODEL = blocksFolder:WaitForChild("Sphere"),
-		},
-		[4] = {
-			NAME = "BouncyCube",
-			MODEL = blocksFolder:WaitForChild("BouncyCube"),
-			CLASS = BouncyCube,
-		},
+	[1] = {
+		NAME = "Cube",
+		MODEL = blocksFolder:WaitForChild("Cube"),
+	},
+	[2] = {
+		NAME = "Wedge",
+		MODEL = blocksFolder:WaitForChild("Wedge"),
+	},
+	[3] = {
+		NAME = "Sphere",
+		MODEL = blocksFolder:WaitForChild("Sphere"),
+	},
+	[4] = {
+		NAME = "BouncyCube",
+		MODEL = blocksFolder:WaitForChild("BouncyCube"),
+	},
+	[5] = {
+		NAME = "Springbox",
+		MODEL = blocksFolder:WaitForChild("Springbox"),
+		COOLDOWN = 5,
 	}
+}
+
+BLOCKS.getDefinitionNumberByName = function(name: string): BlockDefinition?
+	for definitionNumber: number, definition: BlockDefinition in BLOCKS.BLOCK_DEFINITIONS do
+		if definition.NAME == name then
+			return definitionNumber
+		end
+	end
+
+	error("[Blocks] Missing block definition for name: " .. name)
+end
+
+BLOCKS.registerBlockClass = function(name: string, class: any): ()
+	BLOCKS.BLOCK_DEFINITIONS[BLOCKS.getDefinitionNumberByName(name)].CLASS = class
+end
 
 return BLOCKS

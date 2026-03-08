@@ -9,6 +9,7 @@ local classesFolder: Instance = sharedFolder:WaitForChild("Classes")
 local constantsFolder: Instance = sharedFolder:WaitForChild("Constants")
 
 local BLOCK_CONSTANTS: any = require(constantsFolder:WaitForChild("BlockConstants"))
+local BLOCKS: any = require(constantsFolder:WaitForChild("Blocks"))
 
 local Block: any = require(classesFolder:WaitForChild("Block"))
 
@@ -32,7 +33,7 @@ end
 function BouncyCube:setModel(model: Model): ()
 	Block.setModel(self, model)
 
-	self.triggerbox = model:FindFirstChild("Triggerbox")	
+	self.triggerbox = model:FindFirstChild("Triggerbox")
 end
 
 function BouncyCube:onTriggered(player: Player): ()
@@ -54,5 +55,7 @@ function BouncyCube:onTriggered(player: Player): ()
 
 	tween:Play()
 end
+
+BLOCKS.registerBlockClass("BouncyCube", BouncyCube)
 
 return BouncyCube

@@ -8,6 +8,7 @@ local remotesFolder: Folder = ReplicatedStorage:WaitForChild("Remotes") :: Folde
 local sharedFolder: Instance = ReplicatedStorage:WaitForChild("Shared")
 local classesFolder: Instance = sharedFolder:WaitForChild("Classes")
 local constantsFolder: Instance = sharedFolder:WaitForChild("Constants")
+local blocksClasses: Instance = classesFolder:WaitForChild("Blocks")
 
 local Comm: any = require(packagesFolder:WaitForChild("Comm"))
 
@@ -49,6 +50,12 @@ local function onBlockTriggeredSignal(player: Player, blockModel: Model): ()
 
 	if type(block.onTriggered) == "function" then
 		block:onTriggered(player)
+	end
+end
+
+function BlockController.init(): ()
+	for _, block: ModuleScript in blocksClasses:GetChildren() do
+		require(block)
 	end
 end
 
