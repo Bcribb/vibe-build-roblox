@@ -5,6 +5,7 @@ local sharedFolder: Instance = ReplicatedStorage:WaitForChild("Shared")
 local constantsFolder: Instance = sharedFolder:WaitForChild("Constants")
 
 local BLOCK_CONSTANTS: any = require(constantsFolder:WaitForChild("BlockConstants"))
+local BLOCKS: any = require(constantsFolder:WaitForChild("Blocks"))
 
 local Block: any = {}
 Block.__index = Block
@@ -23,6 +24,10 @@ function Block.fromModel(model: Model): any
 	block:setModel(model)
 
 	return block
+end
+
+function Block:getDefinition(): BLOCKS.BlockDefinition
+	return BLOCKS.BLOCK_DEFINITIONS[self.blockDefinitionNumber]
 end
 
 function Block:setModel(model: Model): ()

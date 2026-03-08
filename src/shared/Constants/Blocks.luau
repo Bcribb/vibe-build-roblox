@@ -4,7 +4,6 @@ local ReplicatedStorage: ReplicatedStorage = game:GetService("ReplicatedStorage"
 local sharedFolder: Instance = ReplicatedStorage:WaitForChild("Shared")
 
 local constantsFolder: Instance = sharedFolder:WaitForChild("Constants")
-local classesFolder: Instance = sharedFolder:WaitForChild("Classes")
 local assetsFolder: Instance = ReplicatedStorage:WaitForChild("Assets")
 local blocksFolder: Instance = assetsFolder:WaitForChild("Blocks")
 
@@ -13,7 +12,6 @@ local BLOCK_CONSTANTS: any = require(constantsFolder:WaitForChild("BlockConstant
 export type BlockDefinition = {
 	NAME: string,
 	MODEL: Instance,
-	CLASS: any?,
 	COOLDOWN: number?,
 }
 
@@ -54,7 +52,7 @@ BLOCKS.BLOCK_DEFINITIONS = {
 	}
 }
 
-BLOCKS.getDefinitionNumberByName = function(name: string): BlockDefinition?
+BLOCKS.getDefinitionNumberByName = function(name: string): number
 	for definitionNumber: number, definition: BlockDefinition in BLOCKS.BLOCK_DEFINITIONS do
 		if definition.NAME == name then
 			return definitionNumber
@@ -62,10 +60,6 @@ BLOCKS.getDefinitionNumberByName = function(name: string): BlockDefinition?
 	end
 
 	error("[Blocks] Missing block definition for name: " .. name)
-end
-
-BLOCKS.registerBlockClass = function(name: string, class: any): ()
-	BLOCKS.BLOCK_DEFINITIONS[BLOCKS.getDefinitionNumberByName(name)].CLASS = class
 end
 
 return BLOCKS

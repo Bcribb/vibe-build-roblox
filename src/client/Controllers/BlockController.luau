@@ -8,13 +8,13 @@ local remotesFolder: Folder = ReplicatedStorage:WaitForChild("Remotes") :: Folde
 local sharedFolder: Instance = ReplicatedStorage:WaitForChild("Shared")
 local classesFolder: Instance = sharedFolder:WaitForChild("Classes")
 local constantsFolder: Instance = sharedFolder:WaitForChild("Constants")
-local blocksClasses: Instance = classesFolder:WaitForChild("Blocks")
 
 local Comm: any = require(packagesFolder:WaitForChild("Comm"))
 
 local BLOCKS: any = require(constantsFolder:WaitForChild("Blocks"))
 
 local Block: any = require(classesFolder:WaitForChild("Block"))
+local BlockRegistry: any = require(classesFolder:WaitForChild("BlockRegistry"))
 
 local blockClientComm: any = Comm.ClientComm.new(remotesFolder, false, "BlockService")
 local blockTriggeredSignal: any = blockClientComm:GetSignal("BlockTriggered")
@@ -24,17 +24,17 @@ local BlockController: any = {
 }
 
 local function onBlockAdded(model: Model): ()
-    local blockDefinitionNumber: number = model:GetAttribute(BLOCKS.BLOCK_DEFINITION_ATTRIBUTE) :: number
-    local definition: BLOCKS.BlockDefinition = BLOCKS.BLOCK_DEFINITIONS[blockDefinitionNumber]
-    local block: any = nil
+	local blockDefinitionNumber: number = model:GetAttribute(BLOCKS.BLOCK_DEFINITION_ATTRIBUTE) :: number
+	local blockClass: any? = BlockRegistry.getClass(blockDefinitionNumber)
+	local block: any = nil
 
-    if definition.CLASS then
-        block = definition.CLASS.fromModel(model)
-    else
-        block = Block.fromModel(model)
-    end
+	if blockClass then
+		block = blockClass.fromModel(model)
+	else
+		block = Block.fromModel(model)
+	end
 
-    BlockController.blocks[model] = block
+	BlockController.blocks[model] = block
 end
 
 function BlockController.notifyServerBlockTriggered(blockModel: Model): ()
@@ -53,11 +53,6 @@ local function onBlockTriggeredSignal(player: Player, blockModel: Model): ()
 	end
 end
 
-function BlockController.init(): ()
-	for _, block: ModuleScript in blocksClasses:GetChildren() do
-		require(block)
-	end
-end
 
 function BlockController.start(): ()
 	for _, model: Model in CollectionService:GetTagged(BLOCKS.BLOCK_TAG) do

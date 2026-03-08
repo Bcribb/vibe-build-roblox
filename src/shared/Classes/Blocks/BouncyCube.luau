@@ -9,7 +9,6 @@ local classesFolder: Instance = sharedFolder:WaitForChild("Classes")
 local constantsFolder: Instance = sharedFolder:WaitForChild("Constants")
 
 local BLOCK_CONSTANTS: any = require(constantsFolder:WaitForChild("BlockConstants"))
-local BLOCKS: any = require(constantsFolder:WaitForChild("Blocks"))
 
 local Block: any = require(classesFolder:WaitForChild("Block"))
 
@@ -55,7 +54,5 @@ function BouncyCube:onTriggered(player: Player): ()
 
 	tween:Play()
 end
-
-BLOCKS.registerBlockClass("BouncyCube", BouncyCube)
 
 return BouncyCube

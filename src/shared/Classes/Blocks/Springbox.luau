@@ -9,7 +9,6 @@ local classesFolder: Instance = sharedFolder:WaitForChild("Classes")
 local constantsFolder: Instance = sharedFolder:WaitForChild("Constants")
 
 local BLOCK_CONSTANTS: any = require(constantsFolder:WaitForChild("BlockConstants"))
-local BLOCKS: any = require(constantsFolder:WaitForChild("Blocks"))
 
 local Block: any = require(classesFolder:WaitForChild("Block"))
 
@@ -41,7 +40,7 @@ end
 
 function Springbox:onTriggered(player: Player): ()
     local now: number = workspace:GetServerTimeNow()
-    if now - self.lastTriggeredAt < BLOCKS.BLOCK_DEFINITIONS[self.blockDefinitionNumber].COOLDOWN then
+    if now - self.lastTriggeredAt < self:getDefinition().COOLDOWN then
         return
     end
 
@@ -54,8 +53,5 @@ function Springbox:onTriggered(player: Player): ()
 		hrp.AssemblyLinearVelocity =  direction * 100
 	end
 end
-
-BLOCKS.registerBlockClass("Springbox", Springbox)
-print(BLOCKS.BLOCK_DEFINITIONS)
 
 return Springbox
