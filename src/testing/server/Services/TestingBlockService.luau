@@ -21,6 +21,7 @@ local SPACING_MULTIPLIER: number = 2
 local ROW_OFFSET_X: number = 24
 local BLOCK_HEIGHT_OFFSET: number = BLOCKS.GRID_WIDTH / 2
 local TOOL_ROW_OFFSET_Z: number = 2 * BLOCKS.GRID_WIDTH
+local ROTATION_COUNT: number = 4
 
 local function ensureTestingToolProvidersFolder(): Folder
 	local workspace: Instance = Workspace
@@ -52,17 +53,24 @@ function TestingBlockService.init(): ()
 	local spawnPosition: Vector3 = getSpawnPosition()
 	local spacing: number = SPACING_MULTIPLIER * BLOCKS.GRID_WIDTH
 	local startPosition: Vector3 = spawnPosition + Vector3.new(ROW_OFFSET_X, BLOCK_HEIGHT_OFFSET, 0)
+	local rotatedBlocksGridOrigin: Vector3 = startPosition - Vector3.new(0, 0, TOOL_ROW_OFFSET_Z + spacing)
+	local toolProviderGridOrigin: Vector3 = rotatedBlocksGridOrigin + Vector3.new(ROTATION_COUNT * spacing, 0, 0)
 
 	for blockDefinitionNumber: number, _ in BLOCKS.BLOCK_DEFINITIONS do
-		local position: Vector3 = startPosition + Vector3.new((blockDefinitionNumber - 1) * spacing, 0, 0)
-		BlockService.spawnBlock(blockDefinitionNumber, position, 0)
+		local rowOffsetZ: number = -(blockDefinitionNumber - 1) * spacing
+
+		for rotation: number = 0, ROTATION_COUNT - 1 do
+			local columnOffsetX: number = rotation * spacing
+			local position: Vector3 = rotatedBlocksGridOrigin + Vector3.new(columnOffsetX, 0, rowOffsetZ)
+			BlockService.spawnBlock(blockDefinitionNumber, position, rotation)
+		end
 	end
 
 	local toolProvidersFolder: Folder = ensureTestingToolProvidersFolder()
-	local toolRowPosition: Vector3 = startPosition + Vector3.new(0, 0, TOOL_ROW_OFFSET_Z)
 
 	for blockDefinitionNumber: number, blockDefinition: any in BLOCKS.BLOCK_DEFINITIONS do
-		local position: Vector3 = toolRowPosition + Vector3.new((blockDefinitionNumber - 1) * spacing, 0, 0)
+		local rowOffsetZ: number = -(blockDefinitionNumber - 1) * spacing
+		local position: Vector3 = toolProviderGridOrigin + Vector3.new(0, 0, rowOffsetZ)
 
 		local part: Part = Instance.new("Part")
 		part.Name = blockDefinition.NAME .. "ToolProvider"
