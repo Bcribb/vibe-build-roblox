@@ -1,6 +1,8 @@
 --!strict
 
 local ReplicatedStorage: ReplicatedStorage = game:GetService("ReplicatedStorage")
+local TweenService: TweenService = game:GetService("TweenService")
+local Players: Players = game:GetService("Players")
 
 local sharedFolder: Instance = ReplicatedStorage:WaitForChild("Shared")
 local classesFolder: Instance = sharedFolder:WaitForChild("Classes")
@@ -27,8 +29,30 @@ function BouncyCube.fromModel(model: Model): any
 	return bouncyCube
 end
 
-function BouncyCube:onCollide(player: Player): ()
-	print(self.model:FindFirstChild("Visuals"):FindFirstChild("CubePart"))
+function BouncyCube:setModel(model: Model): ()
+	Block.setModel(self, model)
+
+	self.triggerbox = model:FindFirstChild("Triggerbox")	
+end
+
+function BouncyCube:onTriggered(player: Player): ()
+	if player == Players.LocalPlayer then
+		local hrp : BasePart = player.Character.PrimaryPart
+		local direction: Vector3 = (hrp.CFrame.Position - self.bounds.Position).Unit
+
+		hrp.AssemblyLinearVelocity =  direction * 100
+	end
+
+	local cubePart: BasePart = self.model:FindFirstChild("Visuals"):FindFirstChild("CubePart")
+	cubePart.Size = self.triggerbox.Size
+
+	local originalSize: Vector3 = self.bounds.Size
+	local tweenInfo: TweenInfo = TweenInfo.new(0.5, Enum.EasingStyle.Exponential, Enum.EasingDirection.In)
+	local tween: Tween = TweenService:Create(cubePart, tweenInfo, {
+		Size = originalSize
+	})
+
+	tween:Play()
 end
 
 return BouncyCube

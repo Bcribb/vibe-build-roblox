@@ -71,4 +71,22 @@ function BlockHelper.validateDelete(player: Player, target: Instance): boolean
 	return true
 end
 
+function BlockHelper.findFirstBlockAncestor(instance: Instance): Model
+	if not instance:IsDescendantOf(workspace) then
+		error("[BlockHelper] Instance is not a descendant of workspace: ", instance.Name)
+	end
+
+	local ancestor: Instance? = instance.Parent
+
+	while ancestor ~= workspace do
+		if ancestor:HasTag(BLOCKS.BLOCK_TAG) then
+			return ancestor :: Model
+		end
+
+		ancestor = ancestor.Parent
+	end
+
+	error("[BlockHelper] Missing block ancestor for instance: ", instance.Name)
+end
+
 return BlockHelper
