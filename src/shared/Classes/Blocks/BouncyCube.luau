@@ -17,8 +17,6 @@ setmetatable(BouncyCube, { __index = Block })
 function BouncyCube.new(blockDefinitionNumber: number): any
 	local self: any = setmetatable(Block.new(blockDefinitionNumber), BouncyCube)
 
-    print("BouncyCubeMade!")
-
 	return self
 end
 
@@ -27,6 +25,10 @@ function BouncyCube.fromModel(model: Model): any
 	bouncyCube:setModel(model)
 
 	return bouncyCube
+end
+
+function BouncyCube:onCollide(player: Player): ()
+	print(self.model:FindFirstChild("Visuals"):FindFirstChild("CubePart"))
 end
 
 return BouncyCube

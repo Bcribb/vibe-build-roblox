@@ -14,8 +14,11 @@ local serverFolder: Instance = ServerStorage:WaitForChild("Server")
 local servicesFolder: Instance = serverFolder:WaitForChild("Services")
 
 local Comm: any = require(packagesFolder:WaitForChild("Comm"))
+
 local BLOCKS: any = require(constantsFolder:WaitForChild("Blocks"))
-local TOOLS: any = require(constantsFolder:WaitForChild("Tools"))
+local COLLISION_GROUP_CONSTANTS: any = require(constantsFolder:WaitForChild("CollisionGroupConstants"))
+local TRIGGERBOX_CONSTANTS: any = require(constantsFolder:WaitForChild("TriggerboxConstants"))
+
 local BlockHelper: any = require(helpersFolder:WaitForChild("BlockHelper"))
 
 local ToolProviderService: any = require(servicesFolder:WaitForChild("ToolProviderService"))
@@ -61,12 +64,17 @@ local function validateDestroyModel(player: Player, args: { any }): (boolean, ..
 end
 
 local function onBlockDefinitionDescendantAdded(descendant: Instance): ()
-	if not descendant:HasTag(BLOCKS.BOUNDS_TAG) then
-		return
+	if descendant:HasTag(BLOCKS.BOUNDS_TAG) then
+		local bounds: BasePart = descendant
+		bounds.CollisionGroup = COLLISION_GROUP_CONSTANTS.BOUNDS_COLLISION_GROUP
+		bounds.Transparency = 1
 	end
 
-	local bounds: BasePart = descendant
-	bounds.Transparency = 1
+	if descendant:HasTag(TRIGGERBOX_CONSTANTS.TRIGGERBOX_TAG) then
+		local triggerbox: BasePart = descendant
+		triggerbox.CollisionGroup = COLLISION_GROUP_CONSTANTS.TRIGGERBOX_COLLISION_GROUP
+		triggerbox.Transparency = 0.7
+	end
 end
 
 function BlockService.spawnBlock(blockDefinitionNumber: number, position: Vector3): PlaceableBlockInstance?
@@ -99,7 +107,6 @@ function BlockService.init(): ()
 		"SpawnBlock",
 		function(player: Player, blockDefinitionNumber: number, position: Vector3): PlaceableBlockInstance?
 			BlockService.spawnBlock(blockDefinitionNumber, position)
-
 			ToolProviderService.consumeCreateTool(player)
 
 			return true

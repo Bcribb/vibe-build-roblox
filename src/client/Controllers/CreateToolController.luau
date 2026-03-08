@@ -82,6 +82,7 @@ local function onToolActivated(): ()
 	local position: Vector3 = ghostPart.Position
 	isAwaitingSpawn = true
 	local spawnBlockPromise: any = spawnBlockRemote(blockGhost:getBlockDefinitionNumber(), position)
+
 	spawnBlockPromise:catch(function(_error: any): ()
 		isAwaitingSpawn = false
 	end)
