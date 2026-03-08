@@ -50,10 +50,11 @@ function BridgeBox:setModel(model: Model): ()
 end
 
 function BridgeBox:extendBridge(): ()
+	local originalCFrame: CFrame = self.bounds.CFrame:ToWorldSpace(self:getDefinition().BRIDGE_OFFSET),
 	local extendDirection: Vector3 = self.bridge.CFrame.LookVector
 	local tweenInfo: TweenInfo = self:getDefinition().EXTENSION_TWEEN_INFO
 	local tween: Tween = TweenService:Create(self.bridge, tweenInfo, {
-		CFrame = self.bridge.CFrame + extendDirection * self:getDefinition().EXTENSION_DISTANCE / 2,
+		CFrame = originalCFrame + extendDirection * self:getDefinition().EXTENSION_DISTANCE / 2,
 		Size = Vector3.new(
 			self:getDefinition().BRIDGE_SIZE.X,
 			self:getDefinition().BRIDGE_SIZE.Y,
