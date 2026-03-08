@@ -2,6 +2,7 @@
 
 local ReplicatedStorage: ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService: RunService = game:GetService("RunService")
+local UserInputService: UserInputService = game:GetService("UserInputService")
 local Players: Players = game:GetService("Players")
 
 local remotesFolder: Folder = ReplicatedStorage:WaitForChild("Remotes") :: Folder
@@ -15,6 +16,7 @@ local helpersFolder: Instance = sharedFolder:WaitForChild("Helpers")
 local Comm: any = require(packagesFolder:WaitForChild("Comm"))
 
 local BLOCKS: any = require(constantsFolder:WaitForChild("Blocks"))
+local BLOCK_CONSTANTS: any = require(constantsFolder:WaitForChild("BlockConstants"))
 local TOOLS: any = require(constantsFolder:WaitForChild("Tools"))
 
 local VectorHelper: any = require(helpersFolder:WaitForChild("VectorHelper"))
@@ -28,6 +30,7 @@ local BlockGhost: any = require(classesFolder:WaitForChild("BlockGhost"))
 
 local enabled: boolean = false
 local isAwaitingSpawn: boolean = false
+local rotation: number = 0 -- 0..3 representing quarter turns
 local blockDefinitionNumber: number? = nil
 local blockGhost: any? = nil
 local toolActivatedConnection: RBXScriptConnection? = nil
@@ -81,7 +84,7 @@ local function onToolActivated(): ()
 
 	local position: Vector3 = ghostPart.Position
 	isAwaitingSpawn = true
-	local spawnBlockPromise: any = spawnBlockRemote(blockGhost:getBlockDefinitionNumber(), position)
+	local spawnBlockPromise: any = spawnBlockRemote(blockGhost:getBlockDefinitionNumber(), position, rotation)
 
 	spawnBlockPromise:catch(function(_error: any): ()
 		isAwaitingSpawn = false
@@ -142,9 +145,33 @@ local function onRenderStepped(): ()
 
 	blockGhost = getOrCreateBlockGhost(blockDefinitionNumber :: number)
 	blockGhost:setVisible(true)
-	blockGhost:setPosition(getPlacementPosition())
+
+	local placementPosition: Vector3 = getPlacementPosition()
+	local angleRadians: number = BLOCK_CONSTANTS.PLACEMENT_ROTATION_ANGLES[rotation]
+	blockGhost:setPosition(placementPosition, angleRadians)
 end
 
+local function onInputBegan(input: InputObject, _gameProcessed: boolean): ()
+	if input.UserInputType ~= Enum.UserInputType.Keyboard then
+		return
+	end
+
+	if input.KeyCode ~= Enum.KeyCode.Q and input.KeyCode ~= Enum.KeyCode.E then
+		return
+	end
+
+	if findEquippedCreateTool() == nil then
+		return
+	end
+
+	if input.KeyCode == Enum.KeyCode.E then
+		rotation = (rotation + 1) % 4
+	elseif input.KeyCode == Enum.KeyCode.Q then
+		rotation = (rotation - 1 + 4) % 4
+	end
+end
+
+UserInputService.InputBegan:Connect(onInputBegan)
 RunService.RenderStepped:Connect(onRenderStepped)
 
 return CreateToolController

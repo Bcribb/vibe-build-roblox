@@ -52,8 +52,14 @@ function BlockGhost:setVisible(isVisible: boolean): ()
 	end
 end
 
-function BlockGhost:setPosition(position: Vector3): ()
-	self.model:PivotTo(CFrame.new(position))
+function BlockGhost:setPosition(position: Vector3, angleRadians: number?): ()
+	local cf: CFrame = CFrame.new(position)
+
+	if angleRadians ~= nil and angleRadians ~= 0 then
+		cf = cf * CFrame.Angles(0, angleRadians, 0)
+	end
+
+	self.model:PivotTo(cf)
 end
 
 return BlockGhost

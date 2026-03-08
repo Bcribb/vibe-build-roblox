@@ -55,7 +55,7 @@ function TestingBlockService.init(): ()
 
 	for blockDefinitionNumber: number, _ in BLOCKS.BLOCK_DEFINITIONS do
 		local position: Vector3 = startPosition + Vector3.new((blockDefinitionNumber - 1) * spacing, 0, 0)
-		BlockService.spawnBlock(blockDefinitionNumber, position)
+		BlockService.spawnBlock(blockDefinitionNumber, position, 0)
 	end
 
 	local toolProvidersFolder: Folder = ensureTestingToolProvidersFolder()

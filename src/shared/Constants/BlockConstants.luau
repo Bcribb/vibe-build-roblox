@@ -10,6 +10,7 @@ export type BlockConstants = {
 	BOUNDS_TAG: string,
 	ENABLED_TRANSPARENCY: number,
 	DISABLED_TRANSPARENCY: number,
+	PLACEMENT_ROTATION_ANGLES: { [number]: number },
 }
 
 local BLOCK_CONSTANTS: BlockConstants = {
@@ -19,6 +20,12 @@ local BLOCK_CONSTANTS: BlockConstants = {
 	BOUNDS_TAG = "Bounds",
 	ENABLED_TRANSPARENCY = 0.7,
 	DISABLED_TRANSPARENCY = 1,
+	PLACEMENT_ROTATION_ANGLES = {
+		[0] = 0,
+		[1] = -math.pi / 2,
+		[2] = -math.pi,
+		[3] = math.pi / 2,
+	},
 }
 
 return BLOCK_CONSTANTS

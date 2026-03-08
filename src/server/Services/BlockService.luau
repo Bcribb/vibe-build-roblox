@@ -16,6 +16,7 @@ local servicesFolder: Instance = serverFolder:WaitForChild("Services")
 local Comm: any = require(packagesFolder:WaitForChild("Comm"))
 
 local BLOCKS: any = require(constantsFolder:WaitForChild("Blocks"))
+local BLOCK_CONSTANTS: any = require(constantsFolder:WaitForChild("BlockConstants"))
 local COLLISION_GROUP_CONSTANTS: any = require(constantsFolder:WaitForChild("CollisionGroupConstants"))
 local TRIGGERBOX_CONSTANTS: any = require(constantsFolder:WaitForChild("TriggerboxConstants"))
 
@@ -77,14 +78,15 @@ local function onBlockDefinitionDescendantAdded(descendant: Instance): ()
 	end
 end
 
-function BlockService.spawnBlock(blockDefinitionNumber: number, position: Vector3): PlaceableBlockInstance?
+function BlockService.spawnBlock(blockDefinitionNumber: number, position: Vector3, rotation: number): PlaceableBlockInstance?
 	local blocksFolder: Folder = BlockHelper.getBlocksFolder()
 	local blockInstance: PlaceableBlockInstance? = BlockHelper.createBlockInstance(blockDefinitionNumber)
 
 	blockInstance.Parent = blocksFolder
 	local placeableInstance: PVInstance = blockInstance
+	local angleRadians: number = BLOCK_CONSTANTS.PLACEMENT_ROTATION_ANGLES[rotation]
 
-	placeableInstance:PivotTo(CFrame.new(position))
+	placeableInstance:PivotTo(CFrame.new(position) * CFrame.Angles(0, angleRadians, 0))
 	CollectionService:AddTag(blockInstance, BLOCKS.BLOCK_TAG)
 	blockInstance:SetAttribute(BLOCKS.BLOCK_DEFINITION_ATTRIBUTE, blockDefinitionNumber)
 
@@ -101,8 +103,8 @@ function BlockService.init(): ()
 
 	blockServerComm:BindFunction(
 		"SpawnBlock",
-		function(player: Player, blockDefinitionNumber: number, position: Vector3): PlaceableBlockInstance?
-			BlockService.spawnBlock(blockDefinitionNumber, position)
+		function(player: Player, blockDefinitionNumber: number, position: Vector3, rotation: number): PlaceableBlockInstance?
+			BlockService.spawnBlock(blockDefinitionNumber, position, rotation)
 			ToolProviderService.consumeCreateTool(player)
 
 			return true
