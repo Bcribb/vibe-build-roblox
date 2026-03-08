@@ -8,6 +8,7 @@ local sharedFolder: Instance = ReplicatedStorage:WaitForChild("Shared")
 local constantsFolder: Instance = sharedFolder:WaitForChild("Constants")
 local clientFolder: Instance = ReplicatedStorage:WaitForChild("Client")
 
+local HURTBOX_CONSTANTS: any = require(constantsFolder:WaitForChild("HurtboxConstants"))
 local TRIGGERBOX_CONSTANTS: any = require(constantsFolder:WaitForChild("TriggerboxConstants"))
 
 local HurtboxHelper: any = require(sharedFolder:WaitForChild("Helpers"):WaitForChild("HurtboxHelper"))
@@ -16,6 +17,8 @@ local BlockHelper: any = require(sharedFolder:WaitForChild("Helpers"):WaitForChi
 local BlockController: any = require(clientFolder:WaitForChild("Controllers"):WaitForChild("BlockController"))
 
 local HurtboxController: any = {}
+
+local blockLastTriggeredAt: { [Model]: number } = {}
 
 local function onRenderStepped(_: number): ()
     local character : Model = Players.LocalPlayer.Character
@@ -36,8 +39,14 @@ local function onRenderStepped(_: number): ()
         local block: Model? = BlockHelper.findFirstBlockAncestor(part)
 
         if block then
-            BlockController.blocks[block]:onTriggered(Players.LocalPlayer)
-            BlockController.notifyServerBlockTriggered(block)
+            local now: number = workspace:GetServerTimeNow()
+            local lastTriggered: number? = blockLastTriggeredAt[block]
+
+            if not lastTriggered or (now - lastTriggered) >= HURTBOX_CONSTANTS.DEBOUNCE_SECONDS then
+                blockLastTriggeredAt[block] = now
+                BlockController.blocks[block]:onTriggered(Players.LocalPlayer)
+                BlockController.notifyServerBlockTriggered(block)
+            end
         end
     end
 end
