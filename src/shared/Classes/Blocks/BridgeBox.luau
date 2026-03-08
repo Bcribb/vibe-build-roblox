@@ -50,7 +50,7 @@ function BridgeBox:setModel(model: Model): ()
 end
 
 function BridgeBox:extendBridge(): ()
-	local originalCFrame: CFrame = self.bounds.CFrame:ToWorldSpace(self:getDefinition().BRIDGE_OFFSET),
+	local originalCFrame: CFrame = self.bounds.CFrame:ToWorldSpace(self:getDefinition().BRIDGE_OFFSET)
 	local extendDirection: Vector3 = self.bridge.CFrame.LookVector
 	local tweenInfo: TweenInfo = self:getDefinition().EXTENSION_TWEEN_INFO
 	local tween: Tween = TweenService:Create(self.bridge, tweenInfo, {
