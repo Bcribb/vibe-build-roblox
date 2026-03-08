@@ -11,7 +11,7 @@ local BLOCKS: any = require(constantsFolder:WaitForChild("Blocks"))
 
 local BLOCK_CLASS_MODULES: { [string]: Instance } = {
 	BouncyCube = blocksClassesFolder:WaitForChild("BouncyCube"),
-	Springbox = blocksClassesFolder:WaitForChild("Springbox"),
+	BridgeBox = blocksClassesFolder:WaitForChild("BridgeBox"),
 }
 
 local classMap: { [number]: any } = {}

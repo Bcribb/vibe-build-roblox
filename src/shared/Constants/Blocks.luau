@@ -9,11 +9,7 @@ local blocksFolder: Instance = assetsFolder:WaitForChild("Blocks")
 
 local BLOCK_CONSTANTS: any = require(constantsFolder:WaitForChild("BlockConstants"))
 
-export type BlockDefinition = {
-	NAME: string,
-	MODEL: Instance,
-	COOLDOWN: number?,
-}
+export type BlockDefinition = any
 
 export type BlockDefinitions = {
 	[number]: BlockDefinition,
@@ -46,10 +42,23 @@ BLOCKS.BLOCK_DEFINITIONS = {
 		MODEL = blocksFolder:WaitForChild("BouncyCube"),
 	},
 	[5] = {
-		NAME = "Springbox",
-		MODEL = blocksFolder:WaitForChild("Springbox"),
+		NAME = "BridgeBox",
+		MODEL = blocksFolder:WaitForChild("BridgeBox"),
 		COOLDOWN = 5,
-	}
+
+		BRIDGE_OFFSET = (function()
+			local model: Model = blocksFolder:WaitForChild("BridgeBox")
+			local bridge: BasePart = model:FindFirstChild("Visuals"):FindFirstChild("Bridge")
+			local bounds: BasePart = model:FindFirstChild("Bounds")
+			local offset: CFrame = bounds.CFrame:ToObjectSpace(bridge.CFrame)
+
+			return offset
+		end)(),
+		BRIDGE_SIZE = blocksFolder:WaitForChild("BridgeBox"):WaitForChild("Visuals"):WaitForChild("Bridge").Size,
+
+		EXTENSION_DISTANCE = BLOCKS.GRID_WIDTH * 3,
+		EXTENSION_TWEEN_INFO = TweenInfo.new(0.5, Enum.EasingStyle.Exponential, Enum.EasingDirection.In),
+	},
 }
 
 BLOCKS.getDefinitionNumberByName = function(name: string): number
