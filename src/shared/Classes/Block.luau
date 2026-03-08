@@ -29,7 +29,7 @@ function Block:setModel(model: Model): ()
 	self.model = model
 
 	if not model.PrimaryPart then
-		error("[Block] Missing primary part for model: ", model.Name)
+		error("[Block] Missing primary part for model: " .. model.Name)
 	end
 
 	self.bounds = model.PrimaryPart
