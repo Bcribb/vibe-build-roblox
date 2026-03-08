@@ -96,10 +96,6 @@ function BlockService.destroyBlock(model: Model): ()
 end
 
 function BlockService.init(): ()
-	if blockServerComm ~= nil then
-		return
-	end
-
 	ensureBlocksFolder()
 	blockServerComm = Comm.ServerComm.new(remotesFolder, "BlockService")
 
@@ -115,6 +111,21 @@ function BlockService.init(): ()
 	blockServerComm:BindFunction("DestroyBlock", function(_player: Player, model: Model): ()
 		BlockService.destroyBlock(model)
 	end, { validateDestroyModel })
+
+	local blockTriggeredSignal: any = blockServerComm:CreateSignal("BlockTriggered")
+	blockTriggeredSignal:Connect(function(player: Player, blockModel: any): ()
+		if typeof(blockModel) ~= "Instance" or not blockModel:IsA("Model") then
+			return
+		end
+
+		local blocksFolder: Folder = BlockHelper.getBlocksFolder()
+
+		if not blockModel:IsDescendantOf(blocksFolder) then
+			return
+		end
+
+		blockTriggeredSignal:FireExcept(player, blockModel)
+	end)
 
 	local blocksDefinitionFolder: Folder = ReplicatedStorage.Assets.Blocks
 

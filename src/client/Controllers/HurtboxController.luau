@@ -37,6 +37,7 @@ local function onRenderStepped(_: number): ()
 
         if block then
             BlockController.blocks[block]:onTriggered(Players.LocalPlayer)
+            BlockController.notifyServerBlockTriggered(block)
         end
     end
 end
