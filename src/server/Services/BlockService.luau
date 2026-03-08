@@ -73,7 +73,7 @@ local function onBlockDefinitionDescendantAdded(descendant: Instance): ()
 	if descendant:HasTag(TRIGGERBOX_CONSTANTS.TRIGGERBOX_TAG) then
 		local triggerbox: BasePart = descendant
 		triggerbox.CollisionGroup = COLLISION_GROUP_CONSTANTS.TRIGGERBOX_COLLISION_GROUP
-		triggerbox.Transparency = 0.7
+		triggerbox.Transparency = 1
 	end
 end
 

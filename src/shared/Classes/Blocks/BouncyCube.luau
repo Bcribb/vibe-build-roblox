@@ -43,7 +43,7 @@ function BouncyCube:onTriggered(player: Player): ()
 		hrp.AssemblyLinearVelocity =  direction * 100
 	end
 
-	local cubePart: BasePart = self.model:FindFirstChild("Visuals"):FindFirstChild("CubePart")
+	local cubePart: BasePart = self.model:FindFirstChild("Visuals"):FindFirstChild("Bouncer")
 	cubePart.Size = self.triggerbox.Size
 
 	local originalSize: Vector3 = self.bounds.Size
