@@ -46,6 +46,14 @@ BLOCKS.BLOCK_DEFINITIONS = {
 		MODEL = blocksFolder:WaitForChild("BridgeBox"),
 		COOLDOWN = 5,
 
+		BUTTON_OFFSET = (function()
+			local model: Model = blocksFolder:WaitForChild("BridgeBox")
+			local button: BasePart = model:FindFirstChild("Visuals"):FindFirstChild("Button")
+			local bounds: BasePart = model:FindFirstChild("Bounds")
+			local offset: CFrame = bounds.CFrame:ToObjectSpace(button.CFrame)
+
+			return offset
+		end)(),
 		BRIDGE_OFFSET = (function()
 			local model: Model = blocksFolder:WaitForChild("BridgeBox")
 			local bridge: BasePart = model:FindFirstChild("Visuals"):FindFirstChild("Bridge")
@@ -57,7 +65,8 @@ BLOCKS.BLOCK_DEFINITIONS = {
 		BRIDGE_SIZE = blocksFolder:WaitForChild("BridgeBox"):WaitForChild("Visuals"):WaitForChild("Bridge").Size,
 
 		EXTENSION_DISTANCE = BLOCKS.GRID_WIDTH * 3,
-		EXTENSION_TWEEN_INFO = TweenInfo.new(0.5, Enum.EasingStyle.Exponential, Enum.EasingDirection.In),
+		EXTENSION_TWEEN_INFO = TweenInfo.new(0.5, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out),
+		RETRACTION_TWEEN_INFO = TweenInfo.new(0.5, Enum.EasingStyle.Exponential, Enum.EasingDirection.In),
 	},
 }
 

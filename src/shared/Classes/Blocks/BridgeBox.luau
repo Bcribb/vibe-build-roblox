@@ -50,11 +50,11 @@ function BridgeBox:setModel(model: Model): ()
 end
 
 function BridgeBox:extendBridge(): ()
-	local originalCFrame: CFrame = self.bounds.CFrame:ToWorldSpace(self:getDefinition().BRIDGE_OFFSET)
+	local originalBridgeCFrame: CFrame = self.bounds.CFrame:ToWorldSpace(self:getDefinition().BRIDGE_OFFSET)
 	local extendDirection: Vector3 = self.bridge.CFrame.LookVector
 	local tweenInfo: TweenInfo = self:getDefinition().EXTENSION_TWEEN_INFO
 	local tween: Tween = TweenService:Create(self.bridge, tweenInfo, {
-		CFrame = originalCFrame + extendDirection * self:getDefinition().EXTENSION_DISTANCE / 2,
+		CFrame = originalBridgeCFrame + extendDirection * self:getDefinition().EXTENSION_DISTANCE / 2,
 		Size = Vector3.new(
 			self:getDefinition().BRIDGE_SIZE.X,
 			self:getDefinition().BRIDGE_SIZE.Y,
@@ -63,17 +63,23 @@ function BridgeBox:extendBridge(): ()
 
 	tween:Play()
 
+	local originalButtonCFrame: CFrame = self.bounds.CFrame:ToWorldSpace(self:getDefinition().BUTTON_OFFSET)
+	self.button:PivotTo(originalButtonCFrame + Vector3.new(0, -0.4, 0))
+
 	self.isExtended = true
 end
 
 function BridgeBox:retractBridge(): ()
-	local tweenInfo: TweenInfo = self:getDefinition().EXTENSION_TWEEN_INFO
+	local tweenInfo: TweenInfo = self:getDefinition().RETRACTION_TWEEN_INFO
 	local tween: Tween = TweenService:Create(self.bridge, tweenInfo, {
 		CFrame = self.bounds.CFrame:ToWorldSpace(self:getDefinition().BRIDGE_OFFSET),
 		Size = self:getDefinition().BRIDGE_SIZE,
 	})
 
 	tween:Play()
+
+	local originalButtonCFrame: CFrame = self.bounds.CFrame:ToWorldSpace(self:getDefinition().BUTTON_OFFSET)
+	self.button:PivotTo(originalButtonCFrame)
 
 	self.isExtended = false
 end
