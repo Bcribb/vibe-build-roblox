@@ -13,6 +13,7 @@ local constantsFolder: Instance = ReplicatedStorage:WaitForChild("Shared"):WaitF
 local Comm: any = require(packagesFolder:WaitForChild("Comm"))
 
 local TOOLS: any = require(constantsFolder:WaitForChild("Tools"))
+local COLLISION_GROUP_CONSTANTS: any = require(constantsFolder:WaitForChild("CollisionGroupConstants"))
 
 local RaycastHelper: any = require(helpersFolder:WaitForChild("RaycastHelper"))
 local BlockHelper: any = require(helpersFolder:WaitForChild("BlockHelper"))
@@ -88,7 +89,11 @@ local function onRenderStepped(): ()
 		return
 	end
 
-	local raycastResult: RaycastResult? = RaycastHelper.raycastFromMouse({ Players.LocalPlayer.Character })
+	local raycastResult: RaycastResult? = RaycastHelper.raycastFromMouse(
+		{ Players.LocalPlayer.Character },
+		nil,
+		COLLISION_GROUP_CONSTANTS.BOUNDS_QUERY_GROUP
+	)
 
 	if raycastResult then
 		local model: Model = raycastResult.Instance:FindFirstAncestorOfClass("Model")

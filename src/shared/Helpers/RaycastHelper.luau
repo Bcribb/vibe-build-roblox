@@ -8,7 +8,11 @@ local DEFAULT_MAX_DISTANCE: number = 1000
 
 local RaycastHelper: any = {}
 
-function RaycastHelper.raycastFromMouse(excludedInstances: { Instance }?, maxDistance: number?): RaycastResult?
+function RaycastHelper.raycastFromMouse(
+	excludedInstances: { Instance }?,
+	maxDistance: number?,
+	collisionGroup: string?
+): RaycastResult?
 	local localPlayer: Player = Players.LocalPlayer
 	local character: Model? = localPlayer.Character
 	local camera: Camera? = Workspace.CurrentCamera
@@ -31,6 +35,10 @@ function RaycastHelper.raycastFromMouse(excludedInstances: { Instance }?, maxDis
 	local raycastParams: RaycastParams = RaycastParams.new()
 	raycastParams.FilterType = Enum.RaycastFilterType.Exclude
 	raycastParams.FilterDescendantsInstances = filterInstances
+
+	if collisionGroup ~= nil then
+		raycastParams.CollisionGroup = collisionGroup
+	end
 
 	return Workspace:Raycast(mouseRay.Origin, mouseRay.Direction * usedMaxDistance, raycastParams)
 end
