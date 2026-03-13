@@ -8,6 +8,7 @@ local Workspace: Workspace = game:GetService("Workspace")
 local packagesFolder: Instance = ReplicatedStorage:WaitForChild("Packages")
 local remotesFolder: Folder = ReplicatedStorage:WaitForChild("Remotes") :: Folder
 local sharedFolder: Instance = ReplicatedStorage:WaitForChild("Shared")
+local classesFolder: Instance = sharedFolder:WaitForChild("Classes")
 local constantsFolder: Instance = sharedFolder:WaitForChild("Constants")
 local helpersFolder: Instance = sharedFolder:WaitForChild("Helpers")
 local serverFolder: Instance = ServerStorage:WaitForChild("Server")
@@ -24,7 +25,7 @@ local BlockHelper: any = require(helpersFolder:WaitForChild("BlockHelper"))
 
 local ToolProviderService: any = require(servicesFolder:WaitForChild("ToolProviderService"))
 
-type PlaceableBlockInstance = Model | BasePart
+local Block: any = require(classesFolder:WaitForChild("Block"))
 
 local BlockService: any = {}
 local blockServerComm: any = nil
@@ -78,19 +79,20 @@ local function onBlockDefinitionDescendantAdded(descendant: Instance): ()
 	end
 end
 
-function BlockService.spawnBlock(blockDefinitionNumber: number, position: Vector3, rotation: number): PlaceableBlockInstance?
+function BlockService.spawnBlock(blockDefinitionNumber: number, position: Vector3, rotation: number): Model
 	local blocksFolder: Folder = BlockHelper.getBlocksFolder()
-	local blockInstance: PlaceableBlockInstance? = BlockHelper.createBlockInstance(blockDefinitionNumber)
+	local block: any = Block.new(blockDefinitionNumber)
+	local model: Model = block.model
 
-	blockInstance.Parent = blocksFolder
-	local placeableInstance: PVInstance = blockInstance
+	model.Parent = blocksFolder
+
 	local angleRadians: number = BLOCK_CONSTANTS.PLACEMENT_ROTATION_ANGLES[rotation]
 
-	placeableInstance:PivotTo(CFrame.new(position) * CFrame.Angles(0, angleRadians, 0))
-	CollectionService:AddTag(blockInstance, BLOCKS.BLOCK_TAG)
-	blockInstance:SetAttribute(BLOCKS.BLOCK_DEFINITION_ATTRIBUTE, blockDefinitionNumber)
+	model:PivotTo(CFrame.new(position) * CFrame.Angles(0, angleRadians, 0))
+	CollectionService:AddTag(model, BLOCKS.BLOCK_TAG)
+	model:SetAttribute(BLOCKS.BLOCK_DEFINITION_ATTRIBUTE, blockDefinitionNumber)
 
-	return blockInstance
+	return model
 end
 
 function BlockService.destroyBlock(model: Model): ()
@@ -103,7 +105,7 @@ function BlockService.init(): ()
 
 	blockServerComm:BindFunction(
 		"SpawnBlock",
-		function(player: Player, blockDefinitionNumber: number, position: Vector3, rotation: number): PlaceableBlockInstance?
+		function(player: Player, blockDefinitionNumber: number, position: Vector3, rotation: number): boolean
 			BlockService.spawnBlock(blockDefinitionNumber, position, rotation)
 			ToolProviderService.consumeCreateTool(player)
 

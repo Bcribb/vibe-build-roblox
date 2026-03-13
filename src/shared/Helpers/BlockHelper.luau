@@ -12,25 +12,12 @@ local BLOCKS: any = require(constantsFolder:WaitForChild("Blocks"))
 local TOOLS: any = require(constantsFolder:WaitForChild("Tools"))
 local PlayerHelper: any = require(helpersFolder:WaitForChild("PlayerHelper"))
 
-type BlockDefinition = BLOCKS.BlockDefinition
-type CloneableBlockInstance = Model | BasePart
-
 local BlockHelper: any = {}
 
 function BlockHelper.getBlocksFolder(): Folder
 	local blocksFolder: Instance = Workspace:WaitForChild("Blocks")
 
 	return blocksFolder :: Folder
-end
-
-function BlockHelper.createBlockInstance(blockDefinitionNumber: number): CloneableBlockInstance?
-	local blockDefinition: BlockDefinition? = BLOCKS.BLOCK_DEFINITIONS[blockDefinitionNumber]
-
-	if blockDefinition == nil then
-		error("[BlockHelper] Missing block definition for block definition number: ", blockDefinitionNumber)
-	end
-
-	return blockDefinition.MODEL:Clone() :: CloneableBlockInstance
 end
 
 function BlockHelper.setGhostVisuals(ghostRoot: Instance): ()

@@ -1,11 +1,15 @@
 --!strict
 
 local ReplicatedStorage: ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService: RunService = game:GetService("RunService")
+
 local sharedFolder: Instance = ReplicatedStorage:WaitForChild("Shared")
 local constantsFolder: Instance = sharedFolder:WaitForChild("Constants")
 
 local BLOCK_CONSTANTS: any = require(constantsFolder:WaitForChild("BlockConstants"))
 local BLOCKS: any = require(constantsFolder:WaitForChild("Blocks"))
+
+local isServer: boolean = RunService:IsServer()
 
 local Block: any = {}
 Block.__index = Block
@@ -14,6 +18,12 @@ function Block.new(blockDefinitionNumber: number): any
 	local self: any = setmetatable({
 		blockDefinitionNumber = blockDefinitionNumber,
 	}, Block)
+
+	if isServer then
+		local definition: BLOCKS.BlockDefinition = BLOCKS.BLOCK_DEFINITIONS[blockDefinitionNumber]
+		local model: Model = definition.MODEL:Clone()
+		self:setModel(model)
+	end
 
 	return self
 end
