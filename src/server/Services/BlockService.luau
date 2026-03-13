@@ -3,7 +3,6 @@
 local CollectionService: CollectionService = game:GetService("CollectionService")
 local ReplicatedStorage: ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerStorage: ServerStorage = game:GetService("ServerStorage")
-local Workspace: Workspace = game:GetService("Workspace")
 
 local packagesFolder: Instance = ReplicatedStorage:WaitForChild("Packages")
 local remotesFolder: Folder = ReplicatedStorage:WaitForChild("Remotes") :: Folder
@@ -17,7 +16,6 @@ local servicesFolder: Instance = serverFolder:WaitForChild("Services")
 local Comm: any = require(packagesFolder:WaitForChild("Comm"))
 
 local BLOCKS: any = require(constantsFolder:WaitForChild("Blocks"))
-local BLOCK_CONSTANTS: any = require(constantsFolder:WaitForChild("BlockConstants"))
 local COLLISION_GROUP_CONSTANTS: any = require(constantsFolder:WaitForChild("CollisionGroupConstants"))
 local TRIGGERBOX_CONSTANTS: any = require(constantsFolder:WaitForChild("TriggerboxConstants"))
 
@@ -29,20 +27,7 @@ local Block: any = require(classesFolder:WaitForChild("Block"))
 
 local BlockService: any = {}
 local blockServerComm: any = nil
-
-local function ensureBlocksFolder(): Folder
-	local existingBlocksFolder: Instance? = Workspace:FindFirstChild("Blocks")
-
-	if existingBlocksFolder ~= nil then
-		return existingBlocksFolder :: Folder
-	end
-
-	local blocksFolder: Folder = Instance.new("Folder")
-	blocksFolder.Name = "Blocks"
-	blocksFolder.Parent = Workspace
-
-	return blocksFolder
-end
+local blocks: { [Model]: any } = {}
 
 local function validateDestroyModel(player: Player, args: { any }): (boolean, ...any)
 	local modelArgument: any = args[1]
@@ -59,6 +44,10 @@ local function validateDestroyModel(player: Player, args: { any }): (boolean, ..
 	local blocksFolder: Folder = BlockHelper.getBlocksFolder()
 
 	if not targetModel:IsDescendantOf(blocksFolder) then
+		return false
+	end
+
+	if blocks[targetModel] == nil then
 		return false
 	end
 
@@ -80,27 +69,27 @@ local function onBlockDefinitionDescendantAdded(descendant: Instance): ()
 end
 
 function BlockService.spawnBlock(blockDefinitionNumber: number, position: Vector3, rotation: number): Model
-	local blocksFolder: Folder = BlockHelper.getBlocksFolder()
 	local block: any = Block.new(blockDefinitionNumber)
+	block:applyPlacementRotation(position, rotation)
 	local model: Model = block.model
-
-	model.Parent = blocksFolder
-
-	local angleRadians: number = BLOCK_CONSTANTS.PLACEMENT_ROTATION_ANGLES[rotation]
-
-	model:PivotTo(CFrame.new(position) * CFrame.Angles(0, angleRadians, 0))
-	CollectionService:AddTag(model, BLOCKS.BLOCK_TAG)
-	model:SetAttribute(BLOCKS.BLOCK_DEFINITION_ATTRIBUTE, blockDefinitionNumber)
+	blocks[model] = block
 
 	return model
 end
 
 function BlockService.destroyBlock(model: Model): ()
-	model:Destroy()
+	local block: any? = blocks[model]
+
+	if block == nil then
+		return
+	end
+
+	blocks[model] = nil
+	block:destroy()
 end
 
 function BlockService.init(): ()
-	ensureBlocksFolder()
+	BlockHelper.ensureBlocksFolder()
 	blockServerComm = Comm.ServerComm.new(remotesFolder, "BlockService")
 
 	blockServerComm:BindFunction(

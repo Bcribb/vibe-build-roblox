@@ -2,6 +2,7 @@
 
 local ReplicatedStorage: ReplicatedStorage = game:GetService("ReplicatedStorage")
 local CollectionService: CollectionService = game:GetService("CollectionService")
+local RunService: RunService = game:GetService("RunService")
 local Workspace: Workspace = game:GetService("Workspace")
 
 local sharedFolder: Instance = ReplicatedStorage:WaitForChild("Shared")
@@ -14,10 +15,28 @@ local PlayerHelper: any = require(helpersFolder:WaitForChild("PlayerHelper"))
 
 local BlockHelper: any = {}
 
-function BlockHelper.getBlocksFolder(): Folder
+function BlockHelper.ensureBlocksFolder(): Folder
+	local existingBlocksFolder: Instance? = Workspace:FindFirstChild("Blocks")
+
+	if existingBlocksFolder ~= nil then
+		return existingBlocksFolder :: Folder
+	end
+
+	if RunService:IsServer() then
+		local blocksFolder: Folder = Instance.new("Folder")
+		blocksFolder.Name = "Blocks"
+		blocksFolder.Parent = Workspace
+
+		return blocksFolder
+	end
+
 	local blocksFolder: Instance = Workspace:WaitForChild("Blocks")
 
 	return blocksFolder :: Folder
+end
+
+function BlockHelper.getBlocksFolder(): Folder
+	return BlockHelper.ensureBlocksFolder()
 end
 
 function BlockHelper.setGhostVisuals(ghostRoot: Instance): ()
