@@ -108,6 +108,7 @@ local function onRenderStepped(): ()
 	end
 
 	deleteHighlight:setEnabled(false)
+	targetModel = nil
 end
 
 RunService.RenderStepped:Connect(onRenderStepped)
