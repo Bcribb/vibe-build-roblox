@@ -8,6 +8,7 @@ export type BlockConstants = {
 	BLOCK_DEFINITION_ATTRIBUTE: string,
 	BLOCK_TAG: string,
 	BOUNDS_TAG: string,
+	ORIGIN_TAG: string,
 	ENABLED_TRANSPARENCY: number,
 	DISABLED_TRANSPARENCY: number,
 	PLACEMENT_ROTATION_ANGLES: { [number]: number },
@@ -18,6 +19,7 @@ local BLOCK_CONSTANTS: BlockConstants = {
 	BLOCK_DEFINITION_ATTRIBUTE = "BlockDefinition",
 	BLOCK_TAG = "Block",
 	BOUNDS_TAG = "Bounds",
+	ORIGIN_TAG = "Origin",
 	ENABLED_TRANSPARENCY = 0.7,
 	DISABLED_TRANSPARENCY = 1,
 	PLACEMENT_ROTATION_ANGLES = {

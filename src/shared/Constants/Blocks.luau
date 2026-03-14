@@ -20,6 +20,7 @@ export type BlocksConstants = {
 	BLOCK_DEFINITION_ATTRIBUTE: string,
 	BLOCK_TAG: string,
 	BOUNDS_TAG: string,
+	ORIGIN_TAG: string,
 	BLOCK_DEFINITIONS: BlockDefinitions,
 }
 
@@ -67,6 +68,10 @@ BLOCKS.BLOCK_DEFINITIONS = {
 		EXTENSION_DISTANCE = BLOCKS.GRID_WIDTH * 3,
 		EXTENSION_TWEEN_INFO = TweenInfo.new(0.5, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out),
 		RETRACTION_TWEEN_INFO = TweenInfo.new(0.5, Enum.EasingStyle.Exponential, Enum.EasingDirection.In),
+	},
+	[6] = {
+		NAME = "Truss",
+		MODEL = blocksFolder:WaitForChild("Truss"),
 	},
 }
 

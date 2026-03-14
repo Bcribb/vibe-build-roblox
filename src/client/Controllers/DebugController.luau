@@ -17,6 +17,7 @@ local enableDebugCommand: TextChatCommand = TextChatService:WaitForChild("Enable
 local disableDebugCommand: TextChatCommand = TextChatService:WaitForChild("DisableDebug") :: TextChatCommand
 local showHurtboxCommand: TextChatCommand = TextChatService:WaitForChild("ShowHurtbox") :: TextChatCommand
 local showBoundsCommand: TextChatCommand = TextChatService:WaitForChild("ShowBounds") :: TextChatCommand
+local showOriginCommand: TextChatCommand = TextChatService:WaitForChild("ShowOrigin") :: TextChatCommand
 local showTriggerboxCommand: TextChatCommand = TextChatService:WaitForChild("ShowTriggerbox") :: TextChatCommand
 
 local DebugDatastorage: any = require(datastorageFolder:WaitForChild("DebugDatastorage"))
@@ -80,16 +81,37 @@ function DebugController.setShowBounds(enabled: boolean): nil
 	return nil
 end
 
+function DebugController.setShowOrigin(enabled: boolean): nil
+	DebugDatastorage.showOrigin = enabled
+
+	local originTransparency: number = BLOCKS.DISABLED_TRANSPARENCY
+
+	if enabled then
+		originTransparency = BLOCKS.ENABLED_TRANSPARENCY
+	end
+
+	local originParts: { Instance } = CollectionService:GetTagged(BLOCKS.ORIGIN_TAG)
+
+	for _, taggedInstance in originParts do
+		local originPart: BasePart = taggedInstance :: BasePart
+		originPart.Transparency = originTransparency
+	end
+
+	return nil
+end
+
 function DebugController.start(): nil
 	enableDebugCommand.Triggered:Connect(function(_textSource: TextSource, _unfilteredText: string)
 		DebugController.setShowHurtbox(true)
 		DebugController.setShowBounds(true)
+		DebugController.setShowOrigin(true)
 		DebugController.setShowTriggerbox(true)
 	end)
 
 	disableDebugCommand.Triggered:Connect(function(_textSource: TextSource, _unfilteredText: string)
 		DebugController.setShowHurtbox(false)
 		DebugController.setShowBounds(false)
+		DebugController.setShowOrigin(false)
 		DebugController.setShowTriggerbox(false)
 	end)
 
@@ -105,6 +127,12 @@ function DebugController.start(): nil
 		DebugController.setShowBounds(enabled)
 	end)
 
+	showOriginCommand.Triggered:Connect(function(_textSource: TextSource, _unfilteredText: string)
+		local enabled: boolean = not DebugDatastorage.showOrigin
+
+		DebugController.setShowOrigin(enabled)
+	end)
+
 	showTriggerboxCommand.Triggered:Connect(function(_textSource: TextSource, _unfilteredText: string)
 		local enabled: boolean = not DebugDatastorage.showTriggerbox
 
@@ -115,6 +143,12 @@ function DebugController.start(): nil
 		local boundsPart: BasePart = instance :: BasePart
 		local boundsTransparency: number = DebugDatastorage.showBounds and BLOCKS.ENABLED_TRANSPARENCY or BLOCKS.DISABLED_TRANSPARENCY
 		boundsPart.Transparency = boundsTransparency
+	end)
+
+	CollectionService:GetInstanceAddedSignal(BLOCKS.ORIGIN_TAG):Connect(function(instance: Instance)
+		local originPart: BasePart = instance :: BasePart
+		local originTransparency: number = DebugDatastorage.showOrigin and BLOCKS.ENABLED_TRANSPARENCY or BLOCKS.DISABLED_TRANSPARENCY
+		originPart.Transparency = originTransparency
 	end)
 
 	CollectionService:GetInstanceAddedSignal(TRIGGERBOX_CONSTANTS.TRIGGERBOX_TAG):Connect(function(instance: Instance)

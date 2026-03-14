@@ -103,6 +103,12 @@
           "PrimaryAlias": "/showBounds"
         }
       },
+      "ShowOrigin": {
+        "$className": "TextChatCommand",
+        "$properties": {
+          "PrimaryAlias": "/showOrigin"
+        }
+      },
       "ShowTriggerbox": {
         "$className": "TextChatCommand",
         "$properties": {
