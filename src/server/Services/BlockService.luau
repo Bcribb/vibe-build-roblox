@@ -88,6 +88,14 @@ function BlockService.destroyBlock(model: Model): ()
 	block:destroy()
 end
 
+function BlockService.destroyAllBlocks(): ()
+	for _, block: any in blocks do
+		block:destroy()
+	end
+
+	blocks = {}
+end
+
 function BlockService.init(): ()
 	BlockHelper.ensureBlocksFolder()
 	blockServerComm = Comm.ServerComm.new(remotesFolder, "BlockService")

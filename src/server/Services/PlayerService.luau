@@ -75,6 +75,12 @@ local function watchPlayer(player: Player): ()
 	end
 end
 
+function PlayerService.resetAllPlayers(): ()
+	for _, player: Player in Players:GetPlayers() do
+		player:LoadCharacterAsync()
+	end
+end
+
 function PlayerService.init(): ()
 end
 
