@@ -12,6 +12,7 @@ local helpersFolder: Instance = sharedFolder:WaitForChild("Helpers")
 local serverFolder: Instance = ServerStorage:WaitForChild("Server")
 local serverClassesFolder: Instance = serverFolder:WaitForChild("Classes")
 local contractsFolder: Instance = serverClassesFolder:WaitForChild("Contracts")
+local servicesFolder: Instance = serverFolder:WaitForChild("Services")
 
 local Comm: any = require(packagesFolder:WaitForChild("Comm"))
 
@@ -22,6 +23,8 @@ local TRIGGERBOX_CONSTANTS: any = require(constantsFolder:WaitForChild("Triggerb
 local BlockHelper: any = require(helpersFolder:WaitForChild("BlockHelper"))
 
 local BuildContract: any = require(contractsFolder:WaitForChild("BuildContract"))
+
+local ToolProviderService: any = require(servicesFolder:WaitForChild("ToolProviderService"))
 
 local Block: any = require(classesFolder:WaitForChild("Block"))
 
@@ -98,8 +101,9 @@ end
 
 function BlockService.init(): ()
 	BlockService.buildContract = BuildContract.new()
-	BlockService.buildContract.buildSignal:Connect(function(_player: Player, blockDefinitionNumber: number, position: Vector3, rotation: number): ()
+	BlockService.buildContract.buildSignal:Connect(function(player: Player, blockDefinitionNumber: number, position: Vector3, rotation: number): ()
 		BlockService.spawnBlock(blockDefinitionNumber, position, rotation)
+		ToolProviderService.consumeCreateTool(player)
 	end)
 
 	BlockHelper.ensureBlocksFolder()

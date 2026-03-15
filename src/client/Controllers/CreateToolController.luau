@@ -19,9 +19,10 @@ local BLOCKS: any = require(constantsFolder:WaitForChild("Blocks"))
 local BLOCK_CONSTANTS: any = require(constantsFolder:WaitForChild("BlockConstants"))
 local TOOLS: any = require(constantsFolder:WaitForChild("Tools"))
 
-local VectorHelper: any = require(helpersFolder:WaitForChild("VectorHelper"))
-local PlayerHelper: any = require(helpersFolder:WaitForChild("PlayerHelper"))
+local BlockHelper: any = require(helpersFolder:WaitForChild("BlockHelper"))
 local GridHelper: any = require(helpersFolder:WaitForChild("GridHelper"))
+local PlayerHelper: any = require(helpersFolder:WaitForChild("PlayerHelper"))
+local VectorHelper: any = require(helpersFolder:WaitForChild("VectorHelper"))
 
 local buildClientComm: any = Comm.ClientComm.new(remotesFolder, true, "BuildContract")
 local buildRemote: any = buildClientComm:GetFunction("Build")
@@ -83,19 +84,25 @@ local function onToolActivated(): ()
 	end
 
 	local position: Vector3 = ghostPart.Position
+
+	if not BlockHelper.validatePlacement(Players.LocalPlayer, blockGhost:getBlockDefinitionNumber(), position, rotation) then
+		return
+	end
+
 	isAwaitingSpawn = true
 	local buildPromise: any = buildRemote(blockGhost:getBlockDefinitionNumber(), position, rotation)
 
 	buildPromise:andThen(function(success: boolean, response: string)
 		if not success then
 			isAwaitingSpawn = false
+
 			print("Failed to spawn block: ", response)
+
 			return
 		end
-
-		print("Block spawned")
 	end):catch(function(_error: any): ()
 		isAwaitingSpawn = false
+
 		print("Failed to spawn block")
 	end)
 end

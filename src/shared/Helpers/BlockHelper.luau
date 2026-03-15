@@ -66,7 +66,7 @@ function BlockHelper.validatePlacement(player: Player, blockDefinitionNumber: nu
 	model:PivotTo(CFrame.new(position) * CFrame.Angles(0, BLOCK_CONSTANTS.PLACEMENT_ROTATION_ANGLES[rotation], 0))
 
 	local overlapParams: OverlapParams = OverlapParams.new()
-	overlapParams.CollisionGroup = COLLISION_GROUP_CONSTANTS.BOUNDS_QUERY_GROUP
+	overlapParams.CollisionGroup = COLLISION_GROUP_CONSTANTS.PLACEMENT_QUERY_GROUP
 
 	local otherParts: { BasePart } = workspace:GetPartBoundsInBox(bounds.CFrame, bounds.Size * 0.9, overlapParams)
 
