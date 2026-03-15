@@ -11,6 +11,9 @@ local helpersFolder: Instance = sharedFolder:WaitForChild("Helpers")
 
 local BLOCKS: any = require(constantsFolder:WaitForChild("Blocks"))
 local TOOLS: any = require(constantsFolder:WaitForChild("Tools"))
+local BLOCK_CONSTANTS: any = require(constantsFolder:WaitForChild("BlockConstants"))
+local COLLISION_GROUP_CONSTANTS: any = require(constantsFolder:WaitForChild("CollisionGroupConstants"))
+
 local PlayerHelper: any = require(helpersFolder:WaitForChild("PlayerHelper"))
 
 local BlockHelper: any = {}
@@ -53,6 +56,27 @@ function BlockHelper.setGhostVisuals(ghostRoot: Instance): ()
 		ghostPart.CanQuery = false
 		ghostPart.Transparency = math.max(ghostPart.Transparency, 0.65)
 	end
+end
+
+function BlockHelper.validatePlacement(player: Player, blockDefinitionNumber: number, position: Vector3, rotation: number): (boolean, boolean)
+	local blockDefinition: BLOCKS.BlockDefinition = BLOCKS.BLOCK_DEFINITIONS[blockDefinitionNumber]
+	local model : Model = blockDefinition.MODEL:Clone()
+	local bounds: BasePart = model:FindFirstChild("Bounds")
+
+	model:PivotTo(CFrame.new(position) * CFrame.Angles(0, BLOCK_CONSTANTS.PLACEMENT_ROTATION_ANGLES[rotation], 0))
+
+	local overlapParams: OverlapParams = OverlapParams.new()
+	overlapParams.CollisionGroup = COLLISION_GROUP_CONSTANTS.BOUNDS_QUERY_GROUP
+
+	local otherParts: { BasePart } = workspace:GetPartBoundsInBox(bounds.CFrame, bounds.Size * 0.9, overlapParams)
+
+	if #otherParts > 0 then
+		return false, false
+	end
+
+	model:Destroy()
+
+	return true, true
 end
 
 function BlockHelper.validateDelete(player: Player, target: Instance): boolean

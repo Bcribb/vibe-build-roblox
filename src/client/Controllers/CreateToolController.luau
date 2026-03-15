@@ -86,8 +86,17 @@ local function onToolActivated(): ()
 	isAwaitingSpawn = true
 	local spawnBlockPromise: any = spawnBlockRemote(blockGhost:getBlockDefinitionNumber(), position, rotation)
 
-	spawnBlockPromise:catch(function(_error: any): ()
+	spawnBlockPromise:andThen(function(success: boolean)
+		if not success then
+			isAwaitingSpawn = false
+			print("Failed to spawn block")
+			return
+		end
+
+		print("Block spawned")
+	end):catch(function(_error: any): ()
 		isAwaitingSpawn = false
+		print("Failed to spawn block")
 	end)
 end
 

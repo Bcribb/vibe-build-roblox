@@ -29,6 +29,34 @@ local BlockService: any = {}
 local blockServerComm: any = nil
 local blocks: { [Model]: any } = {}
 
+local function validatePlacement(player: Player, args: { any }): (boolean, boolean)
+	local blockDefinitionNumber: number = args[1]
+	local position: Vector3 = args[2]
+	local rotation: number = args[3]
+
+	if typeof(blockDefinitionNumber) ~= "number" then
+		return false, false
+	end
+
+	if typeof(position) ~= "Vector3" then
+		return false, false
+	end
+
+	if typeof(rotation) ~= "number" then
+		return false, false
+	end
+
+	if BLOCKS.BLOCK_DEFINITIONS[blockDefinitionNumber] == nil then
+		return false, false
+	end
+
+	if rotation ~= 0 and rotation ~= 1 and rotation ~= 2 and rotation ~= 3 then
+		return false, false
+	end
+
+	return BlockHelper.validatePlacement(player, blockDefinitionNumber, position, rotation)
+end
+
 local function validateDestroyModel(player: Player, args: { any }): (boolean, ...any)
 	local modelArgument: any = args[1]
 
@@ -107,7 +135,8 @@ function BlockService.init(): ()
 			ToolProviderService.consumeCreateTool(player)
 
 			return true
-		end
+		end,
+		{ validatePlacement }
 	)
 	blockServerComm:BindFunction("DestroyBlock", function(_player: Player, model: Model): ()
 		BlockService.destroyBlock(model)

@@ -9,6 +9,7 @@ local classesFolder: Instance = sharedFolder:WaitForChild("Classes")
 local constantsFolder: Instance = sharedFolder:WaitForChild("Constants")
 
 local BLOCK_CONSTANTS: any = require(constantsFolder:WaitForChild("BlockConstants"))
+local COLLISION_GROUP_CONSTANTS: any = require(constantsFolder:WaitForChild("CollisionGroupConstants"))
 
 local Block: any = require(classesFolder:WaitForChild("Block"))
 
@@ -49,16 +50,32 @@ function BridgeBox:setModel(model: Model): ()
 	self.button = model:FindFirstChild("Visuals"):FindFirstChild("Button")
 end
 
+function BridgeBox:getExtensionDistance(): number
+	local raycastParams: RaycastParams = RaycastParams.new()
+	raycastParams.CollisionGroup = COLLISION_GROUP_CONSTANTS.BOUNDS_QUERY_GROUP
+	local raycastResult: RaycastResult? = workspace:Raycast(
+		self.bounds.Position,
+		self.bridge.CFrame.LookVector * self:getDefinition().EXTENSION_DISTANCE,
+		raycastParams
+	)
+
+	if raycastResult ~= nil then
+		return raycastResult.Distance - self.bounds.Size.Z / 2
+	end
+
+	return self:getDefinition().EXTENSION_DISTANCE
+end
+
 function BridgeBox:extendBridge(): ()
 	local originalBridgeCFrame: CFrame = self.bounds.CFrame:ToWorldSpace(self:getDefinition().BRIDGE_OFFSET)
 	local extendDirection: Vector3 = self.bridge.CFrame.LookVector
 	local tweenInfo: TweenInfo = self:getDefinition().EXTENSION_TWEEN_INFO
 	local tween: Tween = TweenService:Create(self.bridge, tweenInfo, {
-		CFrame = originalBridgeCFrame + extendDirection * self:getDefinition().EXTENSION_DISTANCE / 2,
+		CFrame = originalBridgeCFrame + extendDirection * self:getExtensionDistance() / 2,
 		Size = Vector3.new(
 			self:getDefinition().BRIDGE_SIZE.X,
 			self:getDefinition().BRIDGE_SIZE.Y,
-			self:getDefinition().BRIDGE_SIZE.Z + self:getDefinition().EXTENSION_DISTANCE),
+			self:getDefinition().BRIDGE_SIZE.Z + self:getExtensionDistance()),
 	})
 
 	tween:Play()
