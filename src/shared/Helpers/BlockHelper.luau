@@ -58,7 +58,7 @@ function BlockHelper.setGhostVisuals(ghostRoot: Instance): ()
 	end
 end
 
-function BlockHelper.validatePlacement(player: Player, blockDefinitionNumber: number, position: Vector3, rotation: number): (boolean, boolean)
+function BlockHelper.validatePlacement(player: Player, blockDefinitionNumber: number, position: Vector3, rotation: number): (boolean, boolean, string?)
 	local blockDefinition: BLOCKS.BlockDefinition = BLOCKS.BLOCK_DEFINITIONS[blockDefinitionNumber]
 	local model : Model = blockDefinition.MODEL:Clone()
 	local bounds: BasePart = model:FindFirstChild("Bounds")
@@ -71,12 +71,12 @@ function BlockHelper.validatePlacement(player: Player, blockDefinitionNumber: nu
 	local otherParts: { BasePart } = workspace:GetPartBoundsInBox(bounds.CFrame, bounds.Size * 0.9, overlapParams)
 
 	if #otherParts > 0 then
-		return false, false
+		return false, false, "Block overlaps with other parts"
 	end
 
 	model:Destroy()
 
-	return true, true
+	return true, true, nil
 end
 
 function BlockHelper.validateDelete(player: Player, target: Instance): boolean

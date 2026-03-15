@@ -1,6 +1,5 @@
 --!strict
 
-local CollectionService: CollectionService = game:GetService("CollectionService")
 local ReplicatedStorage: ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerStorage: ServerStorage = game:GetService("ServerStorage")
 
@@ -11,7 +10,8 @@ local classesFolder: Instance = sharedFolder:WaitForChild("Classes")
 local constantsFolder: Instance = sharedFolder:WaitForChild("Constants")
 local helpersFolder: Instance = sharedFolder:WaitForChild("Helpers")
 local serverFolder: Instance = ServerStorage:WaitForChild("Server")
-local servicesFolder: Instance = serverFolder:WaitForChild("Services")
+local serverClassesFolder: Instance = serverFolder:WaitForChild("Classes")
+local contractsFolder: Instance = serverClassesFolder:WaitForChild("Contracts")
 
 local Comm: any = require(packagesFolder:WaitForChild("Comm"))
 
@@ -21,41 +21,13 @@ local TRIGGERBOX_CONSTANTS: any = require(constantsFolder:WaitForChild("Triggerb
 
 local BlockHelper: any = require(helpersFolder:WaitForChild("BlockHelper"))
 
-local ToolProviderService: any = require(servicesFolder:WaitForChild("ToolProviderService"))
+local BuildContract: any = require(contractsFolder:WaitForChild("BuildContract"))
 
 local Block: any = require(classesFolder:WaitForChild("Block"))
 
 local BlockService: any = {}
 local blockServerComm: any = nil
 local blocks: { [Model]: any } = {}
-
-local function validatePlacement(player: Player, args: { any }): (boolean, boolean)
-	local blockDefinitionNumber: number = args[1]
-	local position: Vector3 = args[2]
-	local rotation: number = args[3]
-
-	if typeof(blockDefinitionNumber) ~= "number" then
-		return false, false
-	end
-
-	if typeof(position) ~= "Vector3" then
-		return false, false
-	end
-
-	if typeof(rotation) ~= "number" then
-		return false, false
-	end
-
-	if BLOCKS.BLOCK_DEFINITIONS[blockDefinitionNumber] == nil then
-		return false, false
-	end
-
-	if rotation ~= 0 and rotation ~= 1 and rotation ~= 2 and rotation ~= 3 then
-		return false, false
-	end
-
-	return BlockHelper.validatePlacement(player, blockDefinitionNumber, position, rotation)
-end
 
 local function validateDestroyModel(player: Player, args: { any }): (boolean, ...any)
 	local modelArgument: any = args[1]
@@ -125,19 +97,14 @@ function BlockService.destroyAllBlocks(): ()
 end
 
 function BlockService.init(): ()
+	BlockService.buildContract = BuildContract.new()
+	BlockService.buildContract.buildSignal:Connect(function(_player: Player, blockDefinitionNumber: number, position: Vector3, rotation: number): ()
+		BlockService.spawnBlock(blockDefinitionNumber, position, rotation)
+	end)
+
 	BlockHelper.ensureBlocksFolder()
 	blockServerComm = Comm.ServerComm.new(remotesFolder, "BlockService")
 
-	blockServerComm:BindFunction(
-		"SpawnBlock",
-		function(player: Player, blockDefinitionNumber: number, position: Vector3, rotation: number): boolean
-			BlockService.spawnBlock(blockDefinitionNumber, position, rotation)
-			ToolProviderService.consumeCreateTool(player)
-
-			return true
-		end,
-		{ validatePlacement }
-	)
 	blockServerComm:BindFunction("DestroyBlock", function(_player: Player, model: Model): ()
 		BlockService.destroyBlock(model)
 	end, { validateDestroyModel })

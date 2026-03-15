@@ -23,8 +23,8 @@ local VectorHelper: any = require(helpersFolder:WaitForChild("VectorHelper"))
 local PlayerHelper: any = require(helpersFolder:WaitForChild("PlayerHelper"))
 local GridHelper: any = require(helpersFolder:WaitForChild("GridHelper"))
 
-local blockClientComm: any = Comm.ClientComm.new(remotesFolder, true, "BlockService")
-local spawnBlockRemote: any = blockClientComm:GetFunction("SpawnBlock")
+local buildClientComm: any = Comm.ClientComm.new(remotesFolder, true, "BuildContract")
+local buildRemote: any = buildClientComm:GetFunction("Build")
 
 local BlockGhost: any = require(classesFolder:WaitForChild("BlockGhost"))
 
@@ -84,12 +84,12 @@ local function onToolActivated(): ()
 
 	local position: Vector3 = ghostPart.Position
 	isAwaitingSpawn = true
-	local spawnBlockPromise: any = spawnBlockRemote(blockGhost:getBlockDefinitionNumber(), position, rotation)
+	local buildPromise: any = buildRemote(blockGhost:getBlockDefinitionNumber(), position, rotation)
 
-	spawnBlockPromise:andThen(function(success: boolean)
+	buildPromise:andThen(function(success: boolean, response: string)
 		if not success then
 			isAwaitingSpawn = false
-			print("Failed to spawn block")
+			print("Failed to spawn block: ", response)
 			return
 		end
 
