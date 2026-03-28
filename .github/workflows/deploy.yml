@@ -45,8 +45,8 @@ jobs:
           PRODUCTION_PLACE_ID: ${{ secrets.PRODUCTION_PLACE_ID }}
         run: >-
           rbxcloud experience publish
-          -a "$RBXCLOUD_API_KEY"
-          -u "$ROBLOX_UNIVERSE_ID"
-          -p "$PRODUCTION_PLACE_ID"
-          -t published
-          -f VibeBuild.rbxl
+          --api-key "$RBXCLOUD_API_KEY"
+          --universe-id "$ROBLOX_UNIVERSE_ID"
+          --place-id "$PRODUCTION_PLACE_ID"
+          --version-type published
+          --filename VibeBuild.rbxl
