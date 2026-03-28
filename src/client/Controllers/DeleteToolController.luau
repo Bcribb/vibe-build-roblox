@@ -24,7 +24,7 @@ local DeleteHighlight: any = require(classesFolder:WaitForChild("DeleteHighlight
 local deleteHighlight : any = DeleteHighlight.new()
 local enabled : boolean = false
 
-local blockClientComm: any = Comm.ClientComm.new(remotesFolder, false, "BlockService")
+local blockClientComm: any = Comm.ClientComm.new(remotesFolder, false, "DestroyContract")
 local destroyBlockRemote: any = blockClientComm:GetFunction("DestroyBlock")
 local targetModel: Model? = nil
 local toolActivatedConnection: RBXScriptConnection? = nil

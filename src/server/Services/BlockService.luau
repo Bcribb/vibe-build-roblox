@@ -23,6 +23,7 @@ local TRIGGERBOX_CONSTANTS: any = require(constantsFolder:WaitForChild("Triggerb
 local BlockHelper: any = require(helpersFolder:WaitForChild("BlockHelper"))
 
 local BuildContract: any = require(contractsFolder:WaitForChild("BuildContract"))
+local DestroyContract: any = require(contractsFolder:WaitForChild("DestroyContract"))
 
 local ToolProviderService: any = require(servicesFolder:WaitForChild("ToolProviderService"))
 
@@ -31,31 +32,6 @@ local Block: any = require(classesFolder:WaitForChild("Block"))
 local BlockService: any = {}
 local blockServerComm: any = nil
 local blocks: { [Model]: any } = {}
-
-local function validateDestroyModel(player: Player, args: { any }): (boolean, ...any)
-	local modelArgument: any = args[1]
-
-	if typeof(modelArgument) ~= "Instance" then
-		return false
-	end
-
-	if not modelArgument:IsA("Model") then
-		return false
-	end
-
-	local targetModel: Model = modelArgument
-	local blocksFolder: Folder = BlockHelper.getBlocksFolder()
-
-	if not targetModel:IsDescendantOf(blocksFolder) then
-		return false
-	end
-
-	if blocks[targetModel] == nil then
-		return false
-	end
-
-	return BlockHelper.validateDelete(player, targetModel)
-end
 
 local function onBlockDefinitionDescendantAdded(descendant: Instance): ()
 	if descendant:HasTag(BLOCKS.BOUNDS_TAG) then
@@ -96,7 +72,7 @@ function BlockService.destroyAllBlocks(): ()
 		block:destroy()
 	end
 
-	blocks = {}
+	table.clear(blocks)
 end
 
 function BlockService.init(): ()
@@ -107,11 +83,13 @@ function BlockService.init(): ()
 	end)
 
 	BlockHelper.ensureBlocksFolder()
-	blockServerComm = Comm.ServerComm.new(remotesFolder, "BlockService")
 
-	blockServerComm:BindFunction("DestroyBlock", function(_player: Player, model: Model): ()
+	BlockService.destroyContract = DestroyContract.new(blocks)
+	BlockService.destroyContract.destroySignal:Connect(function(_player: Player, model: Model): ()
 		BlockService.destroyBlock(model)
-	end, { validateDestroyModel })
+	end)
+
+	blockServerComm = Comm.ServerComm.new(remotesFolder, "BlockService")
 
 	local blockTriggeredSignal: any = blockServerComm:CreateSignal("BlockTriggered")
 	blockTriggeredSignal:Connect(function(player: Player, blockModel: any): ()
