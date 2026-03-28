@@ -29,11 +29,11 @@ jobs:
         env:
           RBXCLOUD_API_KEY: ${{ secrets.RBXCLOUD_API_KEY }}
           ROBLOX_UNIVERSE_ID: ${{ secrets.ROBLOX_UNIVERSE_ID }}
-          ROBLOX_PLACE_ID: ${{ secrets.ROBLOX_PLACE_ID }}
+          PRODUCTION_PLACE_ID: ${{ secrets.PRODUCTION_PLACE_ID }}
         run: >-
           rbxcloud experience publish
           -a "$RBXCLOUD_API_KEY"
           -u "$ROBLOX_UNIVERSE_ID"
-          -p "$ROBLOX_PLACE_ID"
+          -p "$PRODUCTION_PLACE_ID"
           -t published
           -f VibeBuild.rbxl
