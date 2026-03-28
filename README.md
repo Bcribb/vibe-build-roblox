@@ -18,12 +18,14 @@ For more help, check out [the Rojo documentation](https://rojo.space/docs).
 
 ## Deploy (GitHub Actions)
 
-Pushes to `main` run [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml): Wally install, Rojo build, then [rbxcloud](https://sleitnick.github.io/rbxcloud/cli/cli-experience/) `experience publish` (live `published` version).
+Pushes to `main` run [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml): [Rokit](https://github.com/rojo-rbx/rokit) installs Rojo, Wally, and [rbxcloud](https://sleitnick.github.io/rbxcloud/cli/cli-experience/) from [`rokit.toml`](rokit.toml); then Wally deps, Rojo build, and `experience publish` (live `published`).
 
 Configure these **repository secrets** (Settings → Secrets and variables → Actions):
 
 | Secret | Description |
 | ------ | ------------- |
-| `RBXCLOUD_API_KEY` | Roblox Open Cloud API key with place publishing permission for this experience |
+| `ROBLOX_API_KEY` | Roblox Open Cloud API key with place publishing permission for this experience |
 | `ROBLOX_UNIVERSE_ID` | Target experience universe ID |
 | `PRODUCTION_PLACE_ID` | Target place ID |
+
+Locally you can use Rokit (`rokit install`) or keep using [Aftman](aftman.toml); CI uses Rokit only.

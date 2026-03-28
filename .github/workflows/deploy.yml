@@ -13,23 +13,27 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6.0.2
+      - uses: actions/checkout@v4
 
-      # ok-nick/setup-aftman@v0.4.0 appends ~/.aftman/bin with a literal tilde (not expanded), so
-      # ~/.aftman/bin never lands on PATH. Install Aftman explicitly instead.
-      - name: Install Aftman
-        shell: bash
+      - name: Install Rokit
+        run: |
+          curl -sSf https://raw.githubusercontent.com/rojo-rbx/rokit/main/scripts/install.sh | bash
+          echo "${HOME}/.rokit/bin" >> "${GITHUB_PATH}"
+
+      - name: Cache Rokit tools
+        uses: actions/cache@v4
+        with:
+          path: ~/.rokit/tool-storage
+          key: rokit-${{ runner.os }}-${{ hashFiles('rokit.toml') }}
+
+      - name: Install tools
         env:
           GITHUB_TOKEN: ${{ github.token }}
         run: |
-          set -euo pipefail
-          gh release download --repo LPGhatguy/aftman --pattern '*linux-x86_64.zip'
-          unzip -qo aftman-*-linux-x86_64.zip
-          ./aftman self-install
-          echo "${HOME}/.aftman/bin" >> "${GITHUB_PATH}"
-
-      - name: Install Aftman tools (Rojo, Wally, rbxcloud)
-        run: aftman install --no-trust-check
+          rokit trust rojo-rbx/rojo
+          rokit trust UpliftGames/wally
+          rokit trust Sleitnick/rbxcloud
+          rokit install
 
       - name: Install Wally packages
         run: wally install
@@ -38,14 +42,13 @@ jobs:
         run: rojo build -o VibeBuild.rbxl default.project.json
 
       - name: Publish to Roblox
-        shell: bash
         env:
-          RBXCLOUD_API_KEY: ${{ secrets.RBXCLOUD_API_KEY }}
+          API_KEY: ${{ secrets.ROBLOX_API_KEY }}
           ROBLOX_UNIVERSE_ID: ${{ secrets.ROBLOX_UNIVERSE_ID }}
           PRODUCTION_PLACE_ID: ${{ secrets.PRODUCTION_PLACE_ID }}
         run: >-
           rbxcloud experience publish
-          --api-key "$RBXCLOUD_API_KEY"
+          --api-key "$API_KEY"
           --universe-id "$ROBLOX_UNIVERSE_ID"
           --place-id "$PRODUCTION_PLACE_ID"
           --version-type published
