@@ -24,7 +24,7 @@ Configure these **repository secrets** (Settings → Secrets and variables → A
 
 | Secret | Description |
 | ------ | ------------- |
-| `ROBLOX_API_KEY` | Roblox Open Cloud API key with place publishing permission for this experience |
+| `RBXCLOUD_API_KEY` | Roblox Open Cloud API key with place publishing permission for this experience |
 | `ROBLOX_UNIVERSE_ID` | Target experience universe ID |
 | `PRODUCTION_PLACE_ID` | Target place ID |
 
