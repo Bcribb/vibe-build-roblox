@@ -15,10 +15,61 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # #region agent log
+      - name: Debug b35055 — init log
+        run: |
+          mkdir -p .cursor
+          python3 << 'PY'
+          import json
+          import time
+
+          payload = {
+              "sessionId": "b35055",
+              "hypothesisId": "ALL",
+              "location": "deploy.yml:init",
+              "message": "workflow_start",
+              "data": {"runner": "ubuntu-latest"},
+              "timestamp": int(time.time() * 1000),
+          }
+
+          with open(".cursor/debug-b35055.log", "w", encoding="utf-8") as f:
+              f.write(json.dumps(payload) + "\n")
+          PY
+
+      # #endregion
+
       - name: Install Rokit
         run: |
           curl -sSf https://raw.githubusercontent.com/rojo-rbx/rokit/main/scripts/install.sh | bash
           echo "${HOME}/.rokit/bin" >> "${GITHUB_PATH}"
+
+      # #region agent log
+      - name: Debug b35055 — after Rokit installer
+        run: |
+          python3 << 'PY'
+          import json
+          import os
+          import shutil
+          import time
+
+          rokit_bin = os.path.expanduser("~/.rokit/bin")
+          payload = {
+              "sessionId": "b35055",
+              "hypothesisId": "A",
+              "location": "deploy.yml:after_rokit_install",
+              "message": "rokit_path_probe",
+              "data": {
+                  "rokitBinExists": os.path.isdir(rokit_bin),
+                  "rokitBinInPath": rokit_bin in os.environ.get("PATH", ""),
+              },
+              "timestamp": int(time.time() * 1000),
+          }
+
+          with open(".cursor/debug-b35055.log", "a", encoding="utf-8") as f:
+              f.write(json.dumps(payload) + "\n")
+          PY
+
+      # #endregion
 
       - name: Cache Rokit tools
         uses: actions/cache@v4
@@ -35,21 +86,196 @@ jobs:
           rokit trust Sleitnick/rbxcloud
           rokit install
 
+      # #region agent log
+      - name: Debug b35055 — after rokit install
+        run: |
+          python3 << 'PY'
+          import json
+          import shutil
+          import subprocess
+          import time
+
+          def which(name):
+              return shutil.which(name)
+
+          versions: dict[str, str] = {}
+          for tool in ("rojo", "wally", "rbxcloud"):
+              path = which(tool)
+              if not path:
+                  versions[tool] = "missing"
+                  continue
+              try:
+                  out = subprocess.run([tool, "--version"], capture_output=True, text=True, check=False, timeout=60)
+                  versions[tool] = (out.stdout or out.stderr or "").strip()[:200]
+              except Exception as exc:
+                  versions[tool] = f"err:{type(exc).__name__}"
+
+          payload = {
+              "sessionId": "b35055",
+              "hypothesisId": "B",
+              "location": "deploy.yml:after_rokit_tools",
+              "message": "tool_versions",
+              "data": {"versions": versions},
+              "timestamp": int(time.time() * 1000),
+          }
+
+          with open(".cursor/debug-b35055.log", "a", encoding="utf-8") as f:
+              f.write(json.dumps(payload) + "\n")
+          PY
+
+      # #endregion
+
       - name: Install Wally packages
         run: wally install
 
+      # #region agent log
+      - name: Debug b35055 — after wally
+        run: |
+          python3 << 'PY'
+          import json
+          import os
+          import time
+
+          packages_dir = "Packages"
+          payload = {
+              "sessionId": "b35055",
+              "hypothesisId": "C",
+              "location": "deploy.yml:after_wally",
+              "message": "packages_dir",
+              "data": {
+                  "packagesExists": os.path.isdir(packages_dir),
+                  "entryCount": len(os.listdir(packages_dir)) if os.path.isdir(packages_dir) else 0,
+              },
+              "timestamp": int(time.time() * 1000),
+          }
+
+          with open(".cursor/debug-b35055.log", "a", encoding="utf-8") as f:
+              f.write(json.dumps(payload) + "\n")
+          PY
+
+      # #endregion
+
       - name: Build place
         run: rojo build -o VibeBuild.rbxl default.project.json
+
+      # #region agent log
+      - name: Debug b35055 — after rojo build
+        run: |
+          python3 << 'PY'
+          import json
+          import os
+          import time
+
+          rbxl = "VibeBuild.rbxl"
+          payload = {
+              "sessionId": "b35055",
+              "hypothesisId": "D",
+              "location": "deploy.yml:after_rojo_build",
+              "message": "rbxl_output",
+              "data": {
+                  "exists": os.path.isfile(rbxl),
+                  "size": os.path.getsize(rbxl) if os.path.isfile(rbxl) else 0,
+              },
+              "timestamp": int(time.time() * 1000),
+          }
+
+          with open(".cursor/debug-b35055.log", "a", encoding="utf-8") as f:
+              f.write(json.dumps(payload) + "\n")
+          PY
+
+      - name: Debug b35055 — publish preflight
+        env:
+          RBXCLOUD_API_KEY: ${{ secrets.RBXCLOUD_API_KEY }}
+          ROBLOX_UNIVERSE_ID: ${{ secrets.ROBLOX_UNIVERSE_ID }}
+          PRODUCTION_PLACE_ID: ${{ secrets.PRODUCTION_PLACE_ID }}
+        run: |
+          python3 << 'PY'
+          import json
+          import os
+          import time
+
+          api_key = os.environ.get("RBXCLOUD_API_KEY") or ""
+          universe = os.environ.get("ROBLOX_UNIVERSE_ID") or ""
+          place = os.environ.get("PRODUCTION_PLACE_ID") or ""
+
+          payload = {
+              "sessionId": "b35055",
+              "hypothesisId": "E",
+              "location": "deploy.yml:publish_preflight",
+              "message": "secret_and_file_probe",
+              "data": {
+                  "apiKeyLength": len(api_key),
+                  "universeIdLength": len(universe),
+                  "placeIdLength": len(place),
+                  "universeNumeric": universe.isdigit() if universe else False,
+                  "placeNumeric": place.isdigit() if place else False,
+                  "rbxlExists": os.path.isfile("VibeBuild.rbxl"),
+              },
+              "timestamp": int(time.time() * 1000),
+          }
+
+          with open(".cursor/debug-b35055.log", "a", encoding="utf-8") as f:
+              f.write(json.dumps(payload) + "\n")
+          PY
+
+      # #endregion
 
       - name: Publish to Roblox
         env:
           RBXCLOUD_API_KEY: ${{ secrets.RBXCLOUD_API_KEY }}
           ROBLOX_UNIVERSE_ID: ${{ secrets.ROBLOX_UNIVERSE_ID }}
           PRODUCTION_PLACE_ID: ${{ secrets.PRODUCTION_PLACE_ID }}
-        run: >-
-          rbxcloud experience publish
-          --api-key "$RBXCLOUD_API_KEY"
-          --universe-id "$ROBLOX_UNIVERSE_ID"
-          --place-id "$PRODUCTION_PLACE_ID"
-          --version-type published
-          --filename VibeBuild.rbxl
+        run: |
+          set +e
+          rbxcloud experience publish \
+            --api-key "$RBXCLOUD_API_KEY" \
+            --universe-id "$ROBLOX_UNIVERSE_ID" \
+            --place-id "$PRODUCTION_PLACE_ID" \
+            --version-type published \
+            --filename VibeBuild.rbxl > publish_output.txt 2>&1
+          exit_code=$?
+          cat publish_output.txt
+          export PUBLISH_EXIT_CODE="$exit_code"
+          python3 << 'PY'
+          import json
+          import os
+          import time
+
+          code_str = os.environ.get("PUBLISH_EXIT_CODE", "-1")
+          try:
+              code = int(code_str)
+          except ValueError:
+              code = -1
+
+          tail = ""
+          try:
+              with open("publish_output.txt", encoding="utf-8", errors="replace") as f:
+                  tail = f.read()[-1200:]
+          except OSError:
+              tail = ""
+
+          payload = {
+              "sessionId": "b35055",
+              "hypothesisId": "E",
+              "location": "deploy.yml:publish_result",
+              "message": "rbxcloud_exit",
+              "data": {"exitCode": code, "outputTail": tail},
+              "timestamp": int(time.time() * 1000),
+          }
+
+          with open(".cursor/debug-b35055.log", "a", encoding="utf-8") as f:
+              f.write(json.dumps(payload) + "\n")
+          PY
+
+          exit "$exit_code"
+
+      # #region agent log
+      - name: Upload debug log (b35055)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: debug-session-b35055
+          path: .cursor/debug-b35055.log
+          if-no-files-found: warn
+
+      # #endregion
