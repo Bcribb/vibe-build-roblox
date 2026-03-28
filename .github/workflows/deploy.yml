@@ -15,10 +15,21 @@ jobs:
     steps:
       - uses: actions/checkout@v6.0.2
 
+      # ok-nick/setup-aftman@v0.4.0 appends ~/.aftman/bin with a literal tilde (not expanded), so
+      # ~/.aftman/bin never lands on PATH. Install Aftman explicitly instead.
       - name: Install Aftman
-        uses: ok-nick/setup-aftman@v0.4.0
-        with:
-          cache: false
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh release download --repo LPGhatguy/aftman --pattern '*linux-x86_64.zip'
+          unzip -qo aftman-*-linux-x86_64.zip
+          ./aftman self-install
+          echo "${HOME}/.aftman/bin" >> "${GITHUB_PATH}"
+
+      - name: Install Aftman tools (Rojo, Wally, rbxcloud)
+        run: aftman install --no-trust-check
 
       - name: Install Wally packages
         run: wally install
