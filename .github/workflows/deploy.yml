@@ -1,0 +1,39 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Aftman
+        uses: ok-nick/setup-aftman@v0
+
+      - name: Install Wally packages
+        run: wally install
+
+      - name: Build place
+        run: rojo build -o VibeBuild.rbxl default.project.json
+
+      - name: Publish to Roblox
+        shell: bash
+        env:
+          RBXCLOUD_API_KEY: ${{ secrets.RBXCLOUD_API_KEY }}
+          ROBLOX_UNIVERSE_ID: ${{ secrets.ROBLOX_UNIVERSE_ID }}
+          ROBLOX_PLACE_ID: ${{ secrets.ROBLOX_PLACE_ID }}
+        run: >-
+          rbxcloud experience publish
+          -a "$RBXCLOUD_API_KEY"
+          -u "$ROBLOX_UNIVERSE_ID"
+          -p "$ROBLOX_PLACE_ID"
+          -t published
+          -f VibeBuild.rbxl
