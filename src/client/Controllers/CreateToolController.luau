@@ -22,6 +22,7 @@ local TOOLS: any = require(constantsFolder:WaitForChild("Tools"))
 local BlockHelper: any = require(helpersFolder:WaitForChild("BlockHelper"))
 local GridHelper: any = require(helpersFolder:WaitForChild("GridHelper"))
 local PlayerHelper: any = require(helpersFolder:WaitForChild("PlayerHelper"))
+local ShiftLockHelper: any = require(helpersFolder:WaitForChild("ShiftLockHelper"))
 local VectorHelper: any = require(helpersFolder:WaitForChild("VectorHelper"))
 
 local buildClientComm: any = Comm.ClientComm.new(remotesFolder, true, "BuildContract")
@@ -137,6 +138,7 @@ local function onRenderStepped(): ()
 
 			isAwaitingSpawn = false
 			enabled = false
+			ShiftLockHelper.setForcedShiftLockEnabled(false)
 		end
 
 		lastEquippedTool = tool
@@ -146,6 +148,7 @@ local function onRenderStepped(): ()
 			toolActivatedConnection = tool.Activated:Connect(onToolActivated)
 			isAwaitingSpawn = false
 			enabled = true
+			ShiftLockHelper.setForcedShiftLockEnabled(true)
 		end
 	end
 
